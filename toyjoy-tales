@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToyJoy Tales - Operations Management Solution</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                        display: ['Fredoka', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            light: '#FFF9F0', // Soft cream background
+                            primary: '#FF8A65', // Playful coral
+                            secondary: '#4DD0E1', // Cheerful cyan/blue
+                            accent: '#FFD54F', // Warm yellow
+                            dark: '#263238', // Slate text
+                            muted: '#78909C'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Styles for specific constraints and polish */
+        body {
+            background-color: #FFF9F0;
+            color: #263238;
+        }
+        
+        /* Required Chart Container Constraints */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+
+        /* Interactive Tabs */
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            background-color: #FF8A65;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transform: translateY(-2px);
+        }
+
+        /* Timeline Node */
+        .timeline-node {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .timeline-node:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #FFF9F0; }
+        ::-webkit-scrollbar-thumb { background: #FF8A65; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #E64A19; }
+    </style>
+</head>
+
+<!-- Chosen Palette: Playful Professional (Soft Cream Background #FFF9F0, Coral Primary #FF8A65, Cyan Secondary #4DD0E1, Yellow Accent #FFD54F, Slate Text #263238). Chose this to reflect the "kids/play" nature of ToyJoy Tales while maintaining a clean B2B software proposal aesthetic. -->
+
+<!-- Application Structure Plan: The SPA is structured as an interactive proposal presentation. 
+     1. Hero Section: Sets the context.
+     2. Core Modules (Interactive Tabs): Allows the user to explore the main features (Data, Events, Inventory, Billing) without scrolling through a long list. Groups related sub-items.
+     3. Automated Reminders (Visual Timeline): Translates the text-based reminder schedule from the PDF into a visual, easy-to-understand process flow.
+     4. Role-Based Access (Grid Cards): Clearly delineates what Admin, Staff, and Accountants can do.
+     5. Impact Projection (Chart): A synthesized visualization showing the value of moving from manual to automated processes, reinforcing the proposal's value. 
+     This structure was chosen to turn a dry list of requirements into an engaging, logical software tour. -->
+
+<!-- Visualization & Content Choices: 
+     - Modules -> Tabbed Interface -> Allows focused exploration of each functional area without clutter.
+     - Reminders -> HTML/CSS Timeline -> Clearly shows the temporal relationship between staff, vendor, and parent notifications. Better than a bulleted list.
+     - System Impact -> Chart.js Bar Chart -> Synthesized data to show the estimated time savings. Goal is to persuade and show value.
+     - Icons -> Unicode Emojis -> Strictly adhering to the NO SVG/Mermaid rule while keeping the playful tone of "ToyJoy Tales". -->
+
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. All visual elements are HTML/CSS/Tailwind, Canvas (Chart.js), or Unicode. -->
+
+<body class="antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full bg-white/90 backdrop-blur-md shadow-sm z-50 transition-all duration-300">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center gap-2">
+                    <span class="text-3xl">🧸</span>
+                    <span class="font-display font-bold text-2xl text-brand-dark tracking-tight">ToyJoy<span class="text-brand-primary">Tales</span> IT Solution</span>
+                </div>
+                <div class="hidden md:flex space-x-8 font-semibold text-sm text-brand-muted">
+                    <a href="#modules" class="hover:text-brand-primary transition-colors">Core Modules</a>
+                    <a href="#reminders" class="hover:text-brand-primary transition-colors">Smart Reminders</a>
+                    <a href="#roles" class="hover:text-brand-primary transition-colors">Access Roles</a>
+                    <a href="#impact" class="hover:text-brand-primary transition-colors">Value Projection</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto text-center">
+        <div class="inline-block bg-brand-secondary/20 text-brand-dark px-4 py-1.5 rounded-full text-sm font-bold mb-6 tracking-wide uppercase">
+            Proposal Overview
+        </div>
+        <h1 class="font-display text-5xl md:text-6xl font-bold text-brand-dark mb-6 leading-tight">
+            Streamlining Operations for <br><span class="text-brand-primary">Unforgettable Experiences</span>
+        </h1>
+        <p class="text-xl text-brand-muted max-w-3xl mx-auto mb-10">
+            A comprehensive, custom IT solution designed to manage data, automate event reminders, track inventory, and handle billing effortlessly for ToyJoy Tales staff, parents, and vendors.
+        </p>
+        <a href="#modules" class="inline-flex items-center gap-2 bg-brand-primary text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-orange-600 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+            Explore the Platform 🚀
+        </a>
+    </section>
+
+    <!-- Core Modules Section (Interactive Tabs) -->
+    <section id="modules" class="py-20 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="font-display text-4xl font-bold text-brand-dark mb-4">Core System Modules</h2>
+                <p class="text-brand-muted text-lg max-w-2xl mx-auto">
+                    The platform is divided into four main pillars to handle every aspect of the play area and cafe. Click on a module below to explore its features.
+                </p>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-8">
+                <!-- Tab Navigation -->
+                <div class="w-full md:w-1/3 flex flex-col gap-3" id="module-tabs">
+                    <!-- Tabs generated by JS -->
+                </div>
+
+                <!-- Tab Content -->
+                <div class="w-full md:w-2/3 bg-brand-light rounded-3xl p-8 border border-gray-100 shadow-sm relative overflow-hidden">
+                    <!-- Decorative background element -->
+                    <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-accent/10 rounded-full blur-3xl"></div>
+                    
+                    <div id="module-content" class="relative z-10 transition-opacity duration-300">
+                        <!-- Content populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Automated Reminders Section (Timeline) -->
+    <section id="reminders" class="py-20 bg-brand-primary/5">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="font-display text-4xl font-bold text-brand-dark mb-4">Automated WhatsApp Reminders</h2>
+                <p class="text-brand-muted text-lg max-w-2xl mx-auto">
+                    Never miss a beat. The system automatically triggers WhatsApp messages based on the event date, ensuring all parties are aligned without manual follow-ups.
+                </p>
+            </div>
+
+            <div class="relative max-w-4xl mx-auto">
+                <!-- Connecting Line -->
+                <div class="absolute top-1/2 left-0 w-full h-1 bg-brand-secondary/30 -translate-y-1/2 hidden md:block z-0"></div>
+
+                <div class="flex flex-col md:flex-row justify-between relative z-10 gap-8 md:gap-0">
+                    
+                    <!-- Step 1: Staff -->
+                    <div class="timeline-node bg-white p-6 rounded-2xl shadow-md border-t-4 border-brand-secondary flex-1 md:mx-4 text-center">
+                        <div class="w-16 h-16 mx-auto bg-brand-secondary/20 rounded-full flex items-center justify-center text-3xl mb-4">
+                            👨‍💼
+                        </div>
+                        <div class="font-bold text-brand-secondary mb-1">2 Weeks - 1 Month Prior</div>
+                        <h3 class="text-xl font-display font-bold text-brand-dark mb-2">Staff Alert</h3>
+                        <p class="text-sm text-brand-muted">Internal notification to prepare for upcoming kids' birthdays and events.</p>
+                        <div class="mt-4 inline-flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded">
+                            <span>💬</span> Auto-WhatsApp
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Vendors -->
+                    <div class="timeline-node bg-white p-6 rounded-2xl shadow-md border-t-4 border-brand-accent flex-1 md:mx-4 text-center">
+                        <div class="w-16 h-16 mx-auto bg-brand-accent/20 rounded-full flex items-center justify-center text-3xl mb-4">
+                            🎸
+                        </div>
+                        <div class="font-bold text-brand-accent mb-1">1 Week Prior</div>
+                        <h3 class="text-xl font-display font-bold text-brand-dark mb-2">Vendor Briefing</h3>
+                        <p class="text-sm text-brand-muted">Confirmation messages sent to booked Musicians, Magicians, and entertainers.</p>
+                        <div class="mt-4 inline-flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded">
+                            <span>💬</span> Auto-WhatsApp
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Parents -->
+                    <div class="timeline-node bg-white p-6 rounded-2xl shadow-md border-t-4 border-brand-primary flex-1 md:mx-4 text-center">
+                        <div class="w-16 h-16 mx-auto bg-brand-primary/20 rounded-full flex items-center justify-center text-3xl mb-4">
+                            👨‍👩‍👧
+                        </div>
+                        <div class="font-bold text-brand-primary mb-1">2-3 Days Prior</div>
+                        <h3 class="text-xl font-display font-bold text-brand-dark mb-2">Parent Confirmation</h3>
+                        <p class="text-sm text-brand-muted">Final details, timings, and personalized greetings sent to the parents.</p>
+                        <div class="mt-4 inline-flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded">
+                            <span>💬</span> Auto-WhatsApp
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- User Roles Section -->
+    <section id="roles" class="py-20 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="font-display text-4xl font-bold text-brand-dark mb-4">Role-Based Access Control</h2>
+                <p class="text-brand-muted text-lg max-w-2xl mx-auto">
+                    Secure and organized workflows tailored to specific user responsibilities within ToyJoy Tales.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Admin -->
+                <div class="bg-gray-50 rounded-3xl p-8 hover:bg-brand-secondary/10 transition-colors border border-gray-100">
+                    <div class="text-4xl mb-4">👑</div>
+                    <h3 class="font-display text-2xl font-bold text-brand-dark mb-2">Admin</h3>
+                    <p class="text-brand-muted mb-6 text-sm">Full system oversight and configuration.</p>
+                    <ul class="space-y-3 text-sm text-brand-dark font-medium">
+                        <li class="flex items-start gap-2"><span>✅</span> System & Master Data Configuration</li>
+                        <li class="flex items-start gap-2"><span>✅</span> Financial & Operational Overview</li>
+                        <li class="flex items-start gap-2"><span>✅</span> User Management (Staff & Accountant)</li>
+                        <li class="flex items-start gap-2"><span>✅</span> Vendor & Cafe Inventory Approvals</li>
+                    </ul>
+                </div>
+
+                <!-- Staff -->
+                <div class="bg-gray-50 rounded-3xl p-8 hover:bg-brand-primary/10 transition-colors border border-gray-100 shadow-lg transform -translate-y-2">
+                    <div class="text-4xl mb-4">🎯</div>
+                    <h3 class="font-display text-2xl font-bold text-brand-dark mb-2">Staff</h3>
+                    <p class="text-brand-muted mb-6 text-sm">Day-to-day operations and event execution.</p>
+                    <ul class="space-y-3 text-sm text-brand-dark font-medium">
+                        <li class="flex items-start gap-2"><span>✅</span> Manage Kids & Parent Personal Info</li>
+                        <li class="flex items-start gap-2"><span>✅</span> Event & Calendar Management</li>
+                        <li class="flex items-start gap-2"><span>✅</span> Update Event & Cafe Inventory levels</li>
+                        <li class="flex items-start gap-2"><span>✅</span> Trigger/Monitor Whatsapp Reminders</li>
+                    </ul>
+                </div>
+
+                <!-- Accountant -->
+                <div class="bg-gray-50 rounded-3xl p-8 hover:bg-brand-accent/10 transition-colors border border-gray-100">
+                    <div class="text-4xl mb-4">📊</div>
+                    <h3 class="font-display text-2xl font-bold text-brand-dark mb-2">Accountant</h3>
+                    <p class="text-brand-muted mb-6 text-sm">Financial tracking and vendor settlements.</p>
+                    <ul class="space-y-3 text-sm text-brand-dark font-medium">
+                        <li class="flex items-start gap-2"><span>✅</span> Process Billing & Payments</li>
+                        <li class="flex items-start gap-2"><span>✅</span> Cafe & Event Expense Tracking</li>
+                        <li class="flex items-start gap-2"><span>✅</span> Vendor Payment Management</li>
+                        <li class="flex items-start gap-2"><span>✅</span> Financial Reporting</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Impact/Analytics Section -->
+    <section id="impact" class="py-20 bg-brand-dark text-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="font-display text-4xl font-bold mb-4">Projected Operational Impact</h2>
+                    <p class="text-gray-400 text-lg mb-8">
+                        By digitizing Data Management, consolidating Event Calendars, and automating WhatsApp Reminders, ToyJoy Tales can significantly reduce manual overhead. This projection illustrates the estimated weekly hours saved across core operational tasks.
+                    </p>
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-brand-primary/20 flex items-center justify-center text-xl">⏳</div>
+                            <div>
+                                <div class="font-bold text-xl text-brand-primary">70% Time Saved</div>
+                                <div class="text-sm text-gray-400">On manual event coordination and reminders.</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-brand-secondary/20 flex items-center justify-center text-xl">📈</div>
+                            <div>
+                                <div class="font-bold text-xl text-brand-secondary">Zero Missed Details</div>
+                                <div class="text-sm text-gray-400">Centralized database for Kid's info, birthdays, and vendor sync.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl p-6 shadow-2xl">
+                    <!-- CRITICAL: Chart Container styled with limits -->
+                    <div class="chart-container">
+                        <canvas id="impactChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white py-8 border-t border-gray-200 text-center">
+        <p class="text-brand-muted text-sm font-semibold">
+            Interactive Proposal developed based on ToyJoy Tales requirements.
+        </p>
+    </footer>
+
+    <!-- Javascript Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- 1. Core Modules Data & Interaction ---
+            const modulesData = [
+                {
+                    id: 'data-mgmt',
+                    title: 'Data Management',
+                    icon: '🗂️',
+                    headline: 'Centralized Kid & Parent Profiles',
+                    description: 'Maintain a secure, easily accessible database for all client interactions, ensuring personalized service for every birthday and party.',
+                    features: [
+                        'Store comprehensive Kids & Parents Personal Info.',
+                        'Quick access to parent Contact Info.',
+                        'Searchable database for fast retrieval during peak hours.',
+                        'Secure data handling compliant with standard protocols.'
+                    ]
+                },
+                {
+                    id: 'events',
+                    title: 'Event Calendar',
+                    icon: '📅',
+                    headline: 'Month & Date-Wise Event Tracking',
+                    description: 'A dedicated interactive calendar view designed specifically to track birthdays, parties, and vendor schedules at a glance.',
+                    features: [
+                        'Visual Calendar View (Month and Date wise).',
+                        'Track specific event types: Birthdays & Custom Parties.',
+                        'Manage external Vendors directly on the timeline.',
+                        'Assign specific vendors (e.g., Musician, Magician) to slots.'
+                    ]
+                },
+                {
+                    id: 'inventory',
+                    title: 'Inventory Management',
+                    icon: '📦',
+                    headline: 'Real-time Stock Control',
+                    description: 'Keep track of supplies across different operational areas to ensure you never run out of party essentials or cafe items.',
+                    features: [
+                        'Event Inventory: Track party favors, decorations, and props.',
+                        'Cafe Inventory: Manage food, beverages, and consumable stock.',
+                        'Low stock alerts for timely reordering.',
+                        'Role-based access (Staff logs usage, Admin approves orders).'
+                    ]
+                },
+                {
+                    id: 'billing',
+                    title: 'Billing & Payment',
+                    icon: '💳',
+                    headline: 'Seamless Financial Transactions',
+                    description: 'Streamline the checkout process for parents and the settlement process for vendors and cafe operations.',
+                    features: [
+                        'Integrated Billing for events, cafe, and add-ons.',
+                        'Payment status tracking (Pending, Paid, Partial).',
+                        'Invoice generation for parents.',
+                        'Accountant dashboard for daily/monthly reconciliation.'
+                    ]
+                }
+            ];
+
+            const tabsContainer = document.getElementById('module-tabs');
+            const contentContainer = document.getElementById('module-content');
+
+            function renderModuleContent(module) {
+                contentContainer.style.opacity = '0';
+                
+                setTimeout(() => {
+                    contentContainer.innerHTML = `
+                        <div class="flex items-center gap-4 mb-6">
+                            <span class="text-5xl bg-white p-4 rounded-2xl shadow-sm border border-gray-100">${module.icon}</span>
+                            <h3 class="font-display text-3xl font-bold text-brand-dark">${module.title}</h3>
+                        </div>
+                        <h4 class="text-xl font-bold text-brand-primary mb-3">${module.headline}</h4>
+                        <p class="text-brand-muted mb-6 leading-relaxed">${module.description}</p>
+                        <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-inner">
+                            <h5 class="font-bold text-brand-dark mb-4 text-sm uppercase tracking-wider">Key Capabilities</h5>
+                            <ul class="space-y-3">
+                                ${module.features.map(f => `
+                                    <li class="flex items-start gap-3">
+                                        <span class="text-brand-secondary mt-1">✓</span>
+                                        <span class="text-gray-700 font-medium">${f}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    `;
+                    contentContainer.style.opacity = '1';
+                }, 150);
+            }
+
+            // Initialize Tabs
+            modulesData.forEach((mod, index) => {
+                const btn = document.createElement('button');
+                btn.className = `tab-btn w-full text-left px-6 py-4 rounded-2xl font-bold text-lg border border-transparent hover:border-brand-primary/30 flex items-center gap-3 ${index === 0 ? 'active' : 'bg-gray-50 text-brand-dark'}`;
+                btn.innerHTML = `<span>${mod.icon}</span> ${mod.title}`;
+                
+                btn.addEventListener('click', () => {
+                    // Remove active from all
+                    document.querySelectorAll('.tab-btn').forEach(b => {
+                        b.classList.remove('active');
+                        b.classList.add('bg-gray-50', 'text-brand-dark');
+                    });
+                    // Add active to clicked
+                    btn.classList.add('active');
+                    btn.classList.remove('bg-gray-50', 'text-brand-dark');
+                    
+                    renderModuleContent(mod);
+                });
+
+                tabsContainer.appendChild(btn);
+            });
+
+            // Load initial content
+            renderModuleContent(modulesData[0]);
+
+
+            // --- 2. Chart.js Implementation (Impact Projection) ---
+            const ctx = document.getElementById('impactChart').getContext('2d');
+            
+            // Configuration for chart to be responsive within container
+            Chart.defaults.font.family = "'Nunito', sans-serif";
+            Chart.defaults.color = '#78909C';
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Booking Mgmt', 'Vendor Comms', 'Parent Reminders', 'Inventory Tracking'],
+                    datasets: [
+                        {
+                            label: 'Manual Process (Hours/Week)',
+                            data: [15, 8, 12, 10],
+                            backgroundColor: '#CBD5E1', // Gray
+                            borderRadius: 6,
+                            barPercentage: 0.6
+                        },
+                        {
+                            label: 'Proposed System (Hours/Week)',
+                            data: [4, 1, 0.5, 3], // Synthetic data showing improvement
+                            backgroundColor: '#FF8A65', // Brand Primary
+                            borderRadius: 6,
+                            barPercentage: 0.6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // CRITICAL for filling parent container properly
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(38, 50, 56, 0.9)',
+                            titleFont: { size: 14, family: 'Fredoka' },
+                            bodyFont: { size: 13 },
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y + ' hrs';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9', drawBorder: false },
+                            title: { display: true, text: 'Estimated Hours / Week', font: {weight: 'bold'} }
+                        },
+                        x: {
+                            grid: { display: false, drawBorder: false },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45,
+                                callback: function(value) {
+                                    // Label wrapping logic (approx 16 chars)
+                                    let label = this.getLabelForValue(value);
+                                    if(label.length > 16) {
+                                        return label.match(/.{1,16}(\s|$)/g);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
