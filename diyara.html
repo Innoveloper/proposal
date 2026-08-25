@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIYARA | Haute Parfumerie</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            cream: '#F5E8D8',
+                            terracotta: '#F65F0E',
+                            ink: '#141412',
+                            pearl: '#FFFFFF',
+                            sand: '#E6D5C3'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Cormorant Garamond', 'serif'],
+                        sans: ['Montserrat', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        'arch': '200px 200px 0 0',
+                        'arch-full': '200px',
+                        'blob': '40% 60% 70% 30% / 40% 50% 60% 50%',
+                    },
+                    transitionTimingFunction: {
+                        'slow-ease': 'cubic-bezier(0.16, 1, 0.3, 1)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F5E8D8;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #141412;
+            border-radius: 10px;
+        }
+
+        /* Custom Cursor */
+        body {
+            overflow-x: hidden;
+            background-color: #F5E8D8;
+            color: #141412;
+        }
+
+        /* Scroll Reveal Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-40px);
+            transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-left.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Floating Animation */
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(2deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Image Parallax/Zoom Effect */
+        .img-zoom-container {
+            overflow: hidden;
+        }
+        .img-zoom {
+            transition: transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .img-zoom-container:hover .img-zoom {
+            transform: scale(1.08);
+        }
+
+        /* Outline Text Typography */
+        .text-outline {
+            color: transparent;
+            -webkit-text-stroke: 1px #141412;
+            opacity: 0.3;
+        }
+        
+        /* Arch Mask */
+        .arch-mask {
+            clip-path: ellipse(150% 100% at 50% 100%);
+        }
+        @media (max-width: 768px) {
+            .arch-mask {
+                clip-path: ellipse(250% 100% at 50% 100%);
+            }
+        }
+
+        /* View Management for SPA */
+        .view-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .view-section.active-view {
+            display: block;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-brand-terracotta selection:text-white relative">
+
+    <header class="fixed top-0 left-0 w-full z-50 transition-all duration-500" id="navbar">
+        <div class="max-w-[1400px] mx-auto px-4 md:px-6 py-2 md:py-4 flex justify-between items-center">
+            
+            <div class="flex items-center gap-6">
+                <button onclick="toggleMobileMenu()" class="md:hidden interactive text-xl">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <nav class="hidden md:flex gap-10 font-sans text-[11px] uppercase tracking-[0.2em] font-medium">
+                    <button onclick="navigate('collection')" class="hover:text-brand-terracotta transition-colors interactive">Bestseller</button>
+                    <button onclick="navigate('collection')" class="hover:text-brand-terracotta transition-colors interactive">New Arrival</button>
+                    <button onclick="navigate('collection')" class="hover:text-brand-terracotta transition-colors interactive">Collection</button>
+                    <button onclick="navigate('home')" class="hover:text-brand-terracotta transition-colors interactive">Contact Us</button>
+                </nav>
+            </div>
+
+            <button onclick="navigate('home')" class="interactive absolute left-1/2 -translate-x-1/2 w-24 md:w-40 lg:w-48 px-2 md:px-6 md:py-2 flex items-center justify-center">
+                <img src="diyara.png" alt="Diyara Logo" class="w-full h-auto object-contain">
+            </button>
+
+            <div class="flex gap-6 items-center font-sans text-[11px] uppercase tracking-[0.2em] font-medium">
+                <button class="hover:text-brand-terracotta transition-colors interactive hidden md:flex items-center gap-1.5">
+                    <i class="fa-solid fa-magnifying-glass text-sm"></i>
+                    <span>Search</span>
+                </button>
+                <button onclick="toggleCart()" class="hover:text-brand-terracotta transition-colors interactive relative w-8 h-8 flex items-center justify-center">
+                    <i class="fa-solid fa-cart-shopping text-lg"></i>
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-brand-terracotta text-white w-4 h-4 rounded-full flex items-center justify-center text-[9px]">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full">
+        <!-- ========================================== -->
+        <!-- VIEW 1: ORIGINAL HOMEPAGE                  -->
+        <!-- ========================================== -->
+        <div id="view-home" class="view-section active-view">
+            
+            <section class="relative min-h-screen flex items-center pt-24 pb-12 overflow-hidden">
+
+                <div class="max-w-[1400px] mx-auto w-full px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+                    <div class="lg:col-span-5 space-y-8 reveal-left">
+                        <div class="inline-flex items-center gap-3 border border-brand-ink/20 rounded-full px-4 py-1.5 font-sans text-[9px] uppercase tracking-[0.3em]">
+                            <span class="w-1.5 h-1.5 bg-brand-terracotta rounded-full animate-pulse"></span>
+                            Extrait De Parfum
+                        </div>
+                        
+                        <h1 class="font-serif text-5xl md:text-7xl lg:text-[5.5rem] leading-[0.9] tracking-tight">
+                            Invisible <br>
+                            <span class="italic text-brand-terracotta">Garments</span> of <br>
+                            Identity.
+                        </h1>
+                        
+                        <p class="font-sans text-sm tracking-wide leading-relaxed max-w-md opacity-80 font-light">
+                            We distill raw, unfiltered emotions into architectural olfactory sculptures. Crafted without harsh alcohols, designed to melt seamlessly into your pulse points.
+                        </p>
+
+                        <div class="pt-4 flex gap-6 items-center">
+                            <button onclick="navigate('collection')" class="interactive bg-brand-ink text-brand-cream px-8 py-4 rounded-full font-sans text-[10px] uppercase tracking-[0.2em] hover:bg-brand-terracotta transition-all duration-300 shadow-xl">
+                                Discover The Collection
+                            </button>
+                            <button onclick="navigate('home', 'philosophy')" class="interactive font-sans text-[10px] uppercase tracking-[0.2em] border-b border-brand-ink pb-1 hover:text-brand-terracotta hover:border-brand-terracotta transition-colors">
+                                Our Philosophy
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-7 relative h-[70vh] w-full flex justify-end reveal">
+                        <div class="w-4/5 md:w-2/3 h-full rounded-arch overflow-hidden img-zoom-container relative shadow-2xl z-10 border border-brand-sand">
+                            <img src="https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=1200&auto=format&fit=crop" 
+                                 alt="Luxury Perfume" 
+                                 class="w-full h-full object-cover img-zoom">
+                            <div class="absolute inset-0 bg-gradient-to-t from-brand-ink/40 to-transparent"></div>
+                        </div>
+
+                        <div class="absolute top-1/4 -left-4 md:left-0 w-2/3 md:w-1/2 aspect-square rounded-full overflow-hidden img-zoom-container border-4 border-brand-cream shadow-2xl z-20 animate-float">
+                            <img src="https://images.unsplash.com/photo-1615397323136-1e967a57fba3?q=80&w=800&auto=format&fit=crop" 
+                                 alt="Ingredients" 
+                                 class="w-full h-full object-cover img-zoom">
+                        </div>
+
+                        <div class="absolute bottom-6 md:bottom-12 -left-4 md:-left-8 bg-brand-pearl p-4 md:p-5 rounded-2xl shadow-xl z-30 flex items-center gap-3 md:gap-4 border border-brand-sand">
+                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-brand-terracotta/10 flex items-center justify-center text-brand-terracotta text-lg md:text-xl">
+                                <i class="fa-solid fa-droplet"></i>
+                            </div>
+                            <div>
+                                <p class="font-sans text-[8px] md:text-[9px] uppercase tracking-[0.2em] font-bold text-brand-terracotta">Zero Alcohol</p>
+                                <p class="font-serif text-base md:text-lg leading-none mt-1">Pure Botanical Wax</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="philosophy" class="py-16 md:py-32 relative">
+                <div class="max-w-[1200px] mx-auto px-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                        <div class="reveal">
+                            <span class="font-sans text-[10px] text-brand-terracotta uppercase tracking-[0.3em] font-bold block mb-6">The Genesis</span>
+                            <h2 class="font-serif text-4xl md:text-5xl lg:text-6xl leading-[1.1] mb-8">
+                                We don't mix fragrances. <br>
+                                <span class="italic text-brand-terracotta">We distill memories.</span>
+                            </h2>
+                            
+                            <div class="space-y-6 font-sans text-sm font-light leading-relaxed opacity-80">
+                                <p>
+                                    Born from a rebellion against the synthetic evaporation of modern perfumery, Diyara was founded on a singular obsession: intimacy.
+                                </p>
+                                <p>
+                                    Standard perfumes utilize 80% alcohol, projecting loudly before vanishing. We engineered a botanical wax matrix and heavy-weight extrait de parfum that melts directly into your pulse points. The result? A continuous, 12-hour sillage that hovers close to the skin—an aura reserved only for those you allow near.
+                                </p>
+                            </div>
+
+                            <div class="mt-10 grid grid-cols-2 gap-8 border-t border-brand-ink/10 pt-8">
+                                <div>
+                                    <p class="font-serif text-4xl mb-2">30%</p>
+                                    <p class="font-sans text-[10px] uppercase tracking-widest opacity-60">Pure Extract Oil</p>
+                                </div>
+                                <div>
+                                    <p class="font-serif text-4xl mb-2">12hr</p>
+                                    <p class="font-sans text-[10px] uppercase tracking-widest opacity-60">Skin Retention</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 reveal-left relative">
+                            <div class="space-y-4 pt-12">
+                                <div class="rounded-3xl overflow-hidden img-zoom-container h-[250px] md:h-[300px]">
+                                    <img src="https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover img-zoom">
+                                </div>
+                                <div class="bg-brand-ink text-brand-cream rounded-3xl p-6 aspect-square flex flex-col justify-between">
+                                    <i class="fa-solid fa-leaf text-2xl text-brand-terracotta"></i>
+                                    <p class="font-serif text-xl">Sustainably Harvested Resins</p>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="bg-brand-terracotta text-brand-pearl rounded-3xl p-6 aspect-square flex flex-col justify-between">
+                                    <i class="fa-solid fa-fingerprint text-2xl text-brand-cream"></i>
+                                    <p class="font-serif text-xl">Unique Body Chemistry Adaptation</p>
+                                </div>
+                                <div class="rounded-3xl overflow-hidden img-zoom-container h-[300px] md:h-[400px]">
+                                    <img src="https://images.unsplash.com/photo-1547887537-6158d64c35b3?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover img-zoom">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="collection" class="py-24 bg-brand-pearl relative arch-mask rounded-t-[40px] md:rounded-t-[100px] border-t border-brand-sand">
+                <div class="max-w-[1400px] mx-auto px-6">
+                    <div class="flex flex-col md:flex-row justify-between items-end mb-16 reveal">
+                        <div>
+                            <span class="font-sans text-[10px] text-brand-terracotta uppercase tracking-[0.3em] font-bold block mb-4">Masterpiece Catalog</span>
+                            <h2 class="font-serif text-5xl md:text-6xl">The Collection</h2>
+                        </div>
+                        <button onclick="navigate('collection')" class="font-sans text-xs uppercase tracking-[0.1em] border-b border-brand-ink pb-1 interactive cursor-pointer mt-4 md:mt-0 hover:text-brand-terracotta hover:border-brand-terracotta transition-colors">
+                            View All Formats
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                        <!-- Product 1 -->
+                        <div class="group interactive reveal" onclick="openPDP('prod1')">
+                            <div class="relative bg-brand-cream rounded-[40px] aspect-[4/5] overflow-hidden mb-6 img-zoom-container">
+                                <img src="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover img-zoom mix-blend-multiply">
+                                
+                                <div class="absolute inset-0 bg-brand-ink/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col items-center justify-center p-6 text-center z-20">
+                                    <p class="text-brand-terracotta font-sans text-[10px] uppercase tracking-widest font-bold mb-2">Dominant Notes</p>
+                                    <p class="text-brand-pearl font-serif text-xl italic mb-6">Saffron, Oud, Damask Rose</p>
+                                    <button class="bg-brand-pearl text-brand-ink rounded-full px-6 py-3 font-sans text-[10px] uppercase tracking-widest hover:bg-brand-terracotta hover:text-white transition-colors">
+                                        View Details
+                                    </button>
+                                </div>
+
+                                <div class="absolute top-6 left-6 flex gap-2 z-10">
+                                    <span class="bg-brand-terracotta text-white font-sans text-[9px] uppercase tracking-widest px-3 py-1 rounded-full">Solid Balm</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-serif text-2xl group-hover:text-brand-terracotta transition-colors">Velvet Oud & Saffron</h3>
+                                    <p class="font-sans text-xs opacity-60 mt-1">Refillable Brass Compact</p>
+                                </div>
+                                <p class="font-sans text-sm font-semibold">$88.00</p>
+                            </div>
+                        </div>
+
+                        <!-- Product 2 -->
+                        <div class="group interactive reveal mt-0 md:mt-12" onclick="openPDP('prod2')">
+                            <div class="relative bg-brand-cream rounded-[40px] aspect-[4/5] overflow-hidden mb-6 img-zoom-container">
+                                <img src="https://images.unsplash.com/photo-1615397349754-cfa2066a298e?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover img-zoom mix-blend-multiply">
+                                
+                                <div class="absolute inset-0 bg-brand-ink/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col items-center justify-center p-6 text-center z-20">
+                                    <p class="text-brand-terracotta font-sans text-[10px] uppercase tracking-widest font-bold mb-2">Dominant Notes</p>
+                                    <p class="text-brand-pearl font-serif text-xl italic mb-6">Sandalwood, Leather, Vetiver</p>
+                                    <button class="bg-brand-pearl text-brand-ink rounded-full px-6 py-3 font-sans text-[10px] uppercase tracking-widest hover:bg-brand-terracotta hover:text-white transition-colors">
+                                        View Details
+                                    </button>
+                                </div>
+
+                                <div class="absolute top-6 left-6 flex gap-2 z-10">
+                                    <span class="bg-brand-ink text-white font-sans text-[9px] uppercase tracking-widest px-3 py-1 rounded-full">Car Diffuser</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-serif text-2xl group-hover:text-brand-terracotta transition-colors">Aero Santal & Leather</h3>
+                                    <p class="font-sans text-xs opacity-60 mt-1">Milled Aluminum Vent Pod</p>
+                                </div>
+                                <p class="font-sans text-sm font-semibold">$64.00</p>
+                            </div>
+                        </div>
+
+                        <!-- Product 3 -->
+                        <div class="group interactive reveal" onclick="openPDP('prod3')">
+                            <div class="relative bg-brand-cream rounded-[40px] aspect-[4/5] overflow-hidden mb-6 img-zoom-container">
+                                <img src="https://images.unsplash.com/photo-1523293182086-7651a899d37f?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover img-zoom mix-blend-multiply">
+                                
+                                <div class="absolute inset-0 bg-brand-ink/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col items-center justify-center p-6 text-center z-20">
+                                    <p class="text-brand-terracotta font-sans text-[10px] uppercase tracking-widest font-bold mb-2">Dominant Notes</p>
+                                    <p class="text-brand-pearl font-serif text-xl italic mb-6">Bergamot, Pink Pepper, Amber</p>
+                                    <button class="bg-brand-pearl text-brand-ink rounded-full px-6 py-3 font-sans text-[10px] uppercase tracking-widest hover:bg-brand-terracotta hover:text-white transition-colors">
+                                        View Details
+                                    </button>
+                                </div>
+
+                                <div class="absolute top-6 left-6 flex gap-2 z-10">
+                                    <span class="bg-brand-sand text-brand-ink font-sans text-[9px] uppercase tracking-widest px-3 py-1 rounded-full font-bold">30% Extrait</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-serif text-2xl group-hover:text-brand-terracotta transition-colors">Imperial Extrait Spray</h3>
+                                    <p class="font-sans text-xs opacity-60 mt-1">Unisex Liquid Perfume</p>
+                                </div>
+                                <p class="font-sans text-sm font-semibold">$135.00</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <section id="alchemy" class="py-16 md:py-32 bg-brand-ink text-brand-cream relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-brand-terracotta rounded-full filter blur-[150px] opacity-10 -translate-y-1/2 translate-x-1/2"></div>
+                <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-brand-sand rounded-full filter blur-[120px] opacity-10 translate-y-1/2 -translate-x-1/4"></div>
+
+                <div class="max-w-[1200px] mx-auto px-6 relative z-10">
+                    <div class="text-center max-w-2xl mx-auto mb-20 reveal">
+                        <span class="font-sans text-[10px] text-brand-terracotta uppercase tracking-[0.3em] font-bold block mb-6">The Alchemy</span>
+                        <h2 class="font-serif text-5xl md:text-6xl mb-6">Rare Botanical Extraits</h2>
+                        <p class="font-sans text-sm font-light opacity-70 leading-relaxed">
+                            Sourced from the edge of the world. We partner directly with multigenerational farmers in Madagascar, Iran, and Grasse to procure unadulterated absolutes.
+                        </p>
+                    </div>
+
+                    <div class="relative h-[450px] md:h-[600px] reveal-left">
+                        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] max-w-[350px] md:max-w-[450px] aspect-[3/4] rounded-full overflow-hidden border-2 border-brand-terracotta/30 z-10 img-zoom-container shadow-[0_0_50px_rgba(246,95,14,0.1)]">
+                            <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover img-zoom">
+                        </div>
+
+                        <div class="absolute top-[5%] md:top-[10%] left-0 md:left-[10%] bg-brand-ink/80 backdrop-blur-md border border-brand-sand/20 p-4 md:p-6 rounded-2xl max-w-[160px] md:max-w-[240px] z-20 interactive animate-float" style="animation-delay: 0s;">
+                            <h4 class="font-serif text-base md:text-xl text-brand-terracotta mb-1 md:mb-2">Iranian Saffron</h4>
+                            <p class="font-sans text-[9px] md:text-xs opacity-70 font-light">Known as red gold. Hand-harvested at dawn to preserve the delicate, spicy warmth that defines our core accords.</p>
+                        </div>
+
+                        <div class="absolute bottom-[5%] md:bottom-[10%] right-0 md:right-[10%] bg-brand-ink/80 backdrop-blur-md border border-brand-sand/20 p-4 md:p-6 rounded-2xl max-w-[160px] md:max-w-[240px] z-20 interactive animate-float" style="animation-delay: 2s;">
+                            <h4 class="font-serif text-base md:text-xl text-brand-terracotta mb-1 md:mb-2">Tahitian Vanilla</h4>
+                            <p class="font-sans text-[9px] md:text-xs opacity-70 font-light">Cured for 9 months. Offers a creamy, dark sweetness that lacks the synthetic sugar found in commercial scents.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="finder" class="py-16 md:py-28 bg-brand-cream relative">
+                <div class="max-w-[1200px] mx-auto px-6">
+                    <div class="bg-brand-pearl rounded-[48px] p-8 md:p-16 border border-brand-sand shadow-2xl relative overflow-hidden reveal">
+                        <div class="max-w-xl mb-10">
+                            <span class="font-sans text-[10px] text-brand-terracotta uppercase tracking-[0.3em] font-bold block mb-4">Interactive Consultation</span>
+                            <h2 class="font-serif text-4xl md:text-5xl mb-4">Find Your Signature Sillage</h2>
+                            <p class="font-sans text-xs opacity-70 leading-relaxed font-light">Select your preferred sensory elements below to let our olfactory algorithm curate your bespoke formula match.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                            <div>
+                                <label class="font-sans text-[10px] uppercase tracking-widest font-bold block mb-4 opacity-60">1. Select Preferred Aura</label>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="quiz-mood-options">
+                                    <button onclick="selectQuizOption('mood', 'intimate', this)" class="quiz-btn border border-brand-sand p-4 rounded-2xl text-left font-serif text-lg hover:border-brand-terracotta transition-all bg-brand-cream/50 interactive">
+                                        Intimate Warmth
+                                    </button>
+                                    <button onclick="selectQuizOption('mood', 'bold', this)" class="quiz-btn border border-brand-sand p-4 rounded-2xl text-left font-serif text-lg hover:border-brand-terracotta transition-all bg-brand-cream/50 interactive">
+                                        Opulent sillage
+                                    </button>
+                                    <button onclick="selectQuizOption('mood', 'fresh', this)" class="quiz-btn border border-brand-sand p-4 rounded-2xl text-left font-serif text-lg hover:border-brand-terracotta transition-all bg-brand-cream/50 interactive">
+                                        Crisp Serenity
+                                    </button>
+                                    <button onclick="selectQuizOption('mood', 'exotic', this)" class="quiz-btn border border-brand-sand p-4 rounded-2xl text-left font-serif text-lg hover:border-brand-terracotta transition-all bg-brand-cream/50 interactive">
+                                        Smoky Mystery
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="font-sans text-[10px] uppercase tracking-widest font-bold block mb-4 opacity-60">2. Dominant Accord</label>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="quiz-note-options">
+                                    <button onclick="selectQuizOption('note', 'oud', this)" class="quiz-btn border border-brand-sand p-4 rounded-2xl text-left font-serif text-lg hover:border-brand-terracotta transition-all bg-brand-cream/50 interactive">
+                                        Aged Oud & Rose
+                                    </button>
+                                    <button onclick="selectQuizOption('note', 'santal', this)" class="quiz-btn border border-brand-sand p-4 rounded-2xl text-left font-serif text-lg hover:border-brand-terracotta transition-all bg-brand-cream/50 interactive">
+                                        Sandalwood & Amber
+                                    </button>
+                                    <button onclick="selectQuizOption('note', 'citrus', this)" class="quiz-btn border border-brand-sand p-4 rounded-2xl text-left font-serif text-lg hover:border-brand-terracotta transition-all bg-brand-cream/50 interactive">
+                                        Bergamot & Pepper
+                                    </button>
+                                    <button onclick="selectQuizOption('note', 'vanilla', this)" class="quiz-btn border border-brand-sand p-4 rounded-2xl text-left font-serif text-lg hover:border-brand-terracotta transition-all bg-brand-cream/50 interactive">
+                                        Bourbon Vanilla
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="quiz-result" class="bg-brand-cream rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 border border-brand-sand">
+                            <div class="flex items-center gap-6">
+                                <div class="w-20 h-24 rounded-2xl overflow-hidden bg-brand-sand flex-shrink-0">
+                                    <img id="quiz-img" src="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?q=80&w=200&auto=format&fit=crop" class="w-full h-full object-cover">
+                                </div>
+                                <div>
+                                    <span class="font-sans text-[9px] uppercase tracking-widest text-brand-terracotta font-bold">Your Curated Accord</span>
+                                    <h4 id="quiz-title" class="font-serif text-2xl md:text-3xl mt-1">Velvet Oud & Saffron</h4>
+                                    <p id="quiz-desc" class="font-sans text-xs opacity-70 mt-1 font-light">Deep resinous woods enveloped in sun-dried saffron threads and Damask rose.</p>
+                                </div>
+                            </div>
+                            <button id="quiz-action-btn" onclick="openPDP('prod1')" class="bg-brand-ink text-brand-cream px-8 py-4 rounded-full font-sans text-[10px] uppercase tracking-[0.2em] hover:bg-brand-terracotta transition-colors whitespace-nowrap interactive">
+                                View Full Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="py-24 bg-brand-cream border-t border-brand-sand relative">
+                <div class="max-w-[1400px] mx-auto px-6">
+                    <div class="text-center max-w-xl mx-auto mb-16 reveal">
+                        <span class="font-sans text-[10px] text-brand-terracotta uppercase tracking-[0.3em] font-bold block mb-4">Circular Luxury</span>
+                        <h2 class="font-serif text-4xl md:text-5xl">Engineered to Outlast Generations</h2>
+                        <p class="font-sans text-xs opacity-70 mt-4 font-light leading-relaxed">Our hand-turned brass compacts and aluminum vent clips are designed once, owned forever. Simply drop in fresh botanical refill pods.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="bg-brand-pearl p-8 rounded-[36px] border border-brand-sand text-center space-y-4 reveal">
+                            <div class="w-16 h-16 rounded-full bg-brand-cream flex items-center justify-center mx-auto text-brand-terracotta text-2xl">
+                                <i class="fa-solid fa-gem"></i>
+                            </div>
+                            <h3 class="font-serif text-2xl">Solid Brass Shell</h3>
+                            <p class="font-sans text-xs opacity-70 font-light leading-relaxed">Forged from heavy brass with a magnetic clasp engineered for tactile delight.</p>
+                        </div>
+
+                        <div class="bg-brand-pearl p-8 rounded-[36px] border border-brand-sand text-center space-y-4 reveal" style="transition-delay: 0.1s;">
+                            <div class="w-16 h-16 rounded-full bg-brand-cream flex items-center justify-center mx-auto text-brand-terracotta text-2xl">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                            </div>
+                            <h3 class="font-serif text-2xl">Drop-in Pod Refills</h3>
+                            <p class="font-sans text-xs opacity-70 font-light leading-relaxed">Swap fragrances in 5 seconds. 100% recyclable aluminum pods packed with botanical wax.</p>
+                        </div>
+
+                        <div class="bg-brand-pearl p-8 rounded-[36px] border border-brand-sand text-center space-y-4 reveal" style="transition-delay: 0.2s;">
+                            <div class="w-16 h-16 rounded-full bg-brand-cream flex items-center justify-center mx-auto text-brand-terracotta text-2xl">
+                                <i class="fa-solid fa-earth-americas"></i>
+                            </div>
+                            <h3 class="font-serif text-2xl">Zero Water Waste</h3>
+                            <p class="font-sans text-xs opacity-70 font-light leading-relaxed">Formulated without water or volatile solvents, reducing carbon freight impact by 70%.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="py-24 bg-brand-ink text-brand-cream relative overflow-hidden">
+                <div class="max-w-[1400px] mx-auto px-6 relative z-10">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                        <div class="lg:col-span-6 space-y-8 reveal">
+                            <span class="font-sans text-[10px] text-brand-terracotta uppercase tracking-[0.3em] font-bold block">Vehicle Perfumery</span>
+                            <h2 class="font-serif text-5xl lg:text-6xl leading-tight">
+                                Aero Santal & Leather <br>
+                                <span class="italic text-brand-terracotta">Haute Sillage for the Road</span>
+                            </h2>
+                            <p class="font-sans text-sm opacity-70 font-light leading-relaxed">
+                                Transform every journey into a sanctuary. Crafted from milled anodized aluminum, the Aero car diffuser uses vehicle climate airflow to disperse dry fragrance without oily residue or liquid spills.
+                            </p>
+
+                            <div class="space-y-4 font-sans text-xs border-l-2 border-brand-terracotta pl-6">
+                                <p class="font-bold text-brand-cream">Dominant Accord:</p>
+                                <p class="opacity-70 font-light">Australian Sandalwood, Tuscan Leather, Smoked Cedar, Spanish Labdanum.</p>
+                            </div>
+
+                            <div class="pt-4 flex items-center gap-6">
+                                <button onclick="openPDP('prod2')" class="bg-brand-terracotta text-white px-8 py-4 rounded-full font-sans text-[10px] uppercase tracking-[0.2em] hover:bg-white hover:text-brand-ink transition-colors interactive">
+                                    Explore Vehicle Diffuser — $64
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-6 reveal-left">
+                            <div class="relative rounded-arch overflow-hidden aspect-square border-2 border-brand-sand/20 img-zoom-container">
+                                <img src="https://images.unsplash.com/photo-1615397349754-cfa2066a298e?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover img-zoom">
+                                <div class="absolute bottom-6 left-6 right-6 bg-brand-ink/80 backdrop-blur-md p-6 rounded-2xl border border-brand-sand/20 flex justify-between items-center">
+                                    <div>
+                                        <p class="font-serif text-xl">Magnetic Airflow Clamp</p>
+                                        <p class="font-sans text-[10px] uppercase tracking-widest text-brand-terracotta mt-1">Fits 99% Vehicle Vents</p>
+                                    </div>
+                                    <span class="font-serif text-2xl">$64</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="gifting" class="py-28 bg-brand-cream relative">
+                <div class="max-w-[1400px] mx-auto px-6">
+                    <div class="text-center max-w-xl mx-auto mb-16 reveal">
+                        <span class="font-sans text-[10px] text-brand-terracotta uppercase tracking-[0.3em] font-bold block mb-4">Bespoke Gifting</span>
+                        <h2 class="font-serif text-4xl md:text-5xl">Build Your Discovery Vault</h2>
+                        <p class="font-sans text-xs opacity-70 mt-4 font-light">Curate 3 mini extraits in our signature hand-embossed linen vault box with personalized wax seal.</p>
+                    </div>
+
+                    <div class="bg-brand-pearl p-8 md:p-12 rounded-[48px] border border-brand-sand shadow-xl reveal">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" id="vault-slots">
+                            <div class="border-2 border-dashed border-brand-sand rounded-3xl p-6 text-center flex flex-col items-center justify-center min-h-[220px]">
+                                <span class="w-10 h-10 rounded-full bg-brand-cream text-brand-terracotta flex items-center justify-center font-bold text-sm mb-3">1</span>
+                                <p class="font-serif text-xl text-vault-title">Velvet Oud & Saffron</p>
+                                <p class="font-sans text-[10px] uppercase tracking-widest text-brand-terracotta mt-1">Balm Pod Selected</p>
+                            </div>
+
+                            <div class="border-2 border-dashed border-brand-sand rounded-3xl p-6 text-center flex flex-col items-center justify-center min-h-[220px]">
+                                <span class="w-10 h-10 rounded-full bg-brand-cream text-brand-terracotta flex items-center justify-center font-bold text-sm mb-3">2</span>
+                                <p class="font-serif text-xl text-vault-title">Aero Santal & Leather</p>
+                                <p class="font-sans text-[10px] uppercase tracking-widest text-brand-terracotta mt-1">Diffuser Pod Selected</p>
+                            </div>
+
+                            <div class="border-2 border-dashed border-brand-sand rounded-3xl p-6 text-center flex flex-col items-center justify-center min-h-[220px]">
+                                <span class="w-10 h-10 rounded-full bg-brand-cream text-brand-terracotta flex items-center justify-center font-bold text-sm mb-3">3</span>
+                                <p class="font-serif text-xl text-vault-title">Imperial Extrait Spray</p>
+                                <p class="font-sans text-[10px] uppercase tracking-widest text-brand-terracotta mt-1">10ml Spray Selected</p>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row justify-between items-center gap-6 border-t border-brand-sand/50 pt-8">
+                            <div>
+                                <p class="font-serif text-2xl">Bespoke 3-Piece Discovery Vault</p>
+                                <p class="font-sans text-xs opacity-60">Includes custom calligraphy card & gift box</p>
+                            </div>
+                            <div class="flex items-center gap-6">
+                                <span class="font-serif text-3xl">$110.00</span>
+                                <button onclick="addToCart('prod7'); toggleCart();" class="bg-brand-ink text-brand-cream hover:bg-brand-terracotta transition-colors px-8 py-4 rounded-full font-sans text-[11px] uppercase tracking-[0.2em] font-bold interactive">
+                                    Add Vault To Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- HOME PAGE SOCIAL REELS                     -->
+            <!-- ========================================== -->
+            <section class="py-24 bg-brand-ink text-brand-cream relative overflow-hidden">
+                <div class="max-w-[1400px] mx-auto px-6">
+                    <div class="flex flex-col md:flex-row justify-between items-end mb-12 reveal">
+                        <div>
+                            <span class="font-sans text-[10px] text-brand-terracotta uppercase tracking-[0.3em] font-bold block mb-4">The Maison in Motion</span>
+                            <h2 class="font-serif text-4xl md:text-5xl">Visual Alchemy</h2>
+                        </div>
+                        <a href="#" class="font-sans text-xs uppercase tracking-[0.1em] border-b border-brand-sand/50 pb-1 interactive mt-4 md:mt-0 hover:text-brand-terracotta hover:border-brand-terracotta transition-colors">
+                            @diyaraparfum
+                        </a>
+                    </div>
+                    
+                    <div class="flex overflow-x-auto snap-x snap-mandatory gap-4 md:grid md:grid-cols-4 md:gap-6 pb-6 md:pb-0 reveal [&::-webkit-scrollbar]:hidden" style="scrollbar-width: none;">
+                        <!-- Reel 1 -->
+                        <div class="relative rounded-[32px] overflow-hidden aspect-[9/16] border border-brand-sand/20 group interactive cursor-pointer bg-brand-ink shadow-xl min-w-[70vw] snap-center md:min-w-0 md:w-auto">
+                            <img src="https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover opacity-70 group-hover:scale-105 group-hover:opacity-100 transition-all duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex flex-col justify-between p-6">
+                                <div class="self-end bg-black/40 backdrop-blur-md rounded-full w-8 h-8 flex items-center justify-center text-white">
+                                    <i class="fa-solid fa-play text-xs ml-0.5"></i>
+                                </div>
+                                <div>
+                                    <p class="font-sans text-[9px] uppercase tracking-widest text-white/80 flex items-center gap-2 mb-1">
+                                        <i class="fa-brands fa-instagram text-brand-terracotta"></i> 24.5K Views
+                                    </p>
+                                    <p class="font-serif text-lg leading-tight text-white">Behind the Scenes: Saffron Harvest</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Reel 2 -->
+                        <div class="relative rounded-[32px] overflow-hidden aspect-[9/16] border border-brand-sand/20 group interactive cursor-pointer bg-brand-ink shadow-xl min-w-[70vw] snap-center md:min-w-0 md:w-auto">
+                            <img src="https://images.unsplash.com/photo-1615397323136-1e967a57fba3?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover opacity-70 group-hover:scale-105 group-hover:opacity-100 transition-all duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex flex-col justify-between p-6">
+                                <div class="self-end bg-black/40 backdrop-blur-md rounded-full w-8 h-8 flex items-center justify-center text-white">
+                                    <i class="fa-solid fa-play text-xs ml-0.5"></i>
+                                </div>
+                                <div>
+                                    <p class="font-sans text-[9px] uppercase tracking-widest text-white/80 flex items-center gap-2 mb-1">
+                                        <i class="fa-brands fa-tiktok text-brand-terracotta"></i> 112K Views
+                                    </p>
+                                    <p class="font-serif text-lg leading-tight text-white">The Art of Botanical Extraction</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Reel 3 -->
+                        <div class="relative rounded-[32px] overflow-hidden aspect-[9/16] border border-brand-sand/20 group interactive cursor-pointer bg-brand-ink shadow-xl min-w-[70vw] snap-center md:min-w-0 md:w-auto">
+                            <img src="https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover opacity-70 group-hover:scale-105 group-hover:opacity-100 transition-all duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex flex-col justify-between p-6">
+                                <div class="self-end bg-black/40 backdrop-blur-md rounded-full w-8 h-8 flex items-center justify-center text-white">
+                                    <i class="fa-solid fa-play text-xs ml-0.5"></i>
+                                </div>
+                                <div>
+                                    <p class="font-sans text-[9px] uppercase tracking-widest text-white/80 flex items-center gap-2 mb-1">
+                                        <i class="fa-brands fa-instagram text-brand-terracotta"></i> 45K Views
+                                    </p>
+                                    <p class="font-serif text-lg leading-tight text-white">Brass Compact Engineering</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Reel 4 -->
+                        <div class="relative rounded-[32px] overflow-hidden aspect-[9/16] border border-brand-sand/20 group interactive cursor-pointer bg-brand-ink shadow-xl min-w-[70vw] snap-center md:min-w-0 md:w-auto">
+                            <img src="https://images.unsplash.com/photo-1547887537-6158d64c35b3?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover opacity-70 group-hover:scale-105 group-hover:opacity-100 transition-all duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex flex-col justify-between p-6">
+                                <div class="self-end bg-black/40 backdrop-blur-md rounded-full w-8 h-8 flex items-center justify-center text-white">
+                                    <i class="fa-solid fa-play text-xs ml-0.5"></i>
+                                </div>
+                                <div>
+                                    <p class="font-sans text-[9px] uppercase tracking-widest text-white/80 flex items-center gap-2 mb-1">
+                                        <i class="fa-brands fa-tiktok text-brand-terracotta"></i> 89K Views
+                                    </p>
+                                    <p class="font-serif text-lg leading-tight text-white">Aero Santal: Vehicle Sillage</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- HOME PAGE FAQs                             -->
+            <!-- ========================================== -->
+            <section class="py-24 bg-brand-cream border-t border-brand-sand relative">
+                <div class="max-w-[900px] mx-auto px-6">
+                    <div class="text-center mb-16 reveal">
+                        <span class="font-sans text-[10px] text-brand-terracotta uppercase tracking-[0.3em] font-bold block mb-4">Curiosity</span>
+                        <h2 class="font-serif text-4xl md:text-5xl">Frequently Asked Questions</h2>
+                    </div>
+                    <div class="space-y-4 reveal">
+                        <div class="bg-brand-pearl border border-brand-sand rounded-2xl overflow-hidden transition-all duration-300">
+                            <button onclick="toggleFaq(this)" class="w-full px-8 py-6 text-left flex justify-between items-center interactive focus:outline-none">
+                                <span class="font-serif text-xl">How does solid perfume differ from spray?</span>
+                                <i class="fa-solid fa-plus text-brand-terracotta transition-transform duration-300"></i>
+                            </button>
+                            <div class="max-h-0 overflow-hidden transition-all duration-500 bg-brand-cream/30">
+                                <p class="px-8 pb-6 font-sans text-sm font-light opacity-80 leading-relaxed">Solid perfumes are formulated with a botanical wax base rather than alcohol. This means they don't evaporate into the air; instead, they melt into your skin, providing an intimate sillage that lasts up to 12 hours without projecting across the room.</p>
+                            </div>
+                        </div>
+                        <div class="bg-brand-pearl border border-brand-sand rounded-2xl overflow-hidden transition-all duration-300">
+                            <button onclick="toggleFaq(this)" class="w-full px-8 py-6 text-left flex justify-between items-center interactive focus:outline-none">
+                                <span class="font-serif text-xl">Are your ingredients ethically sourced?</span>
+                                <i class="fa-solid fa-plus text-brand-terracotta transition-transform duration-300"></i>
+                            </button>
+                            <div class="max-h-0 overflow-hidden transition-all duration-500 bg-brand-cream/30">
+                                <p class="px-8 pb-6 font-sans text-sm font-light opacity-80 leading-relaxed">Absolutely. We partner directly with multigenerational farmers in Madagascar, Iran, and Grasse. Our supply chain is completely transparent, ensuring fair wages and sustainable harvesting practices.</p>
+                            </div>
+                        </div>
+                        <div class="bg-brand-pearl border border-brand-sand rounded-2xl overflow-hidden transition-all duration-300">
+                            <button onclick="toggleFaq(this)" class="w-full px-8 py-6 text-left flex justify-between items-center interactive focus:outline-none">
+                                <span class="font-serif text-xl">Do you offer international shipping?</span>
+                                <i class="fa-solid fa-plus text-brand-terracotta transition-transform duration-300"></i>
+                            </button>
+                            <div class="max-h-0 overflow-hidden transition-all duration-500 bg-brand-cream/30">
+                                <p class="px-8 pb-6 font-sans text-sm font-light opacity-80 leading-relaxed">Yes, we ship globally using climate-controlled expedited freight. International orders typically arrive within 4-7 business days. Complimentary shipping is applied to all orders over $150.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="py-24 bg-brand-pearl border-t border-brand-sand overflow-hidden">
+                <div class="max-w-[1400px] mx-auto px-6 mb-16 text-center">
+                    <p class="font-sans text-[10px] uppercase tracking-[0.3em] font-bold text-brand-terracotta mb-8">Editorial Recognition</p>
+                    <div class="flex flex-wrap justify-center items-center gap-12 md:gap-20 opacity-40 font-serif text-2xl md:text-3xl italic">
+                        <span>VOGUE</span>
+                        <span>ELLE DECOR</span>
+                        <span>HARPER'S BAZAAR</span>
+                        <span>ROBB REPORT</span>
+                        <span>MONOCLE</span>
+                    </div>
+                </div>
+
+                <div class="max-w-[1200px] mx-auto px-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="bg-brand-cream p-8 rounded-3xl border border-brand-sand space-y-4 reveal">
+                            <div class="text-brand-terracotta flex gap-1 text-xs">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="font-serif text-xl italic leading-relaxed">"The solid balm sillage lasts through a full 14-hour workday without drying out my skin."</p>
+                            <p class="font-sans text-[10px] uppercase tracking-widest font-bold opacity-60">— Elena R., Milan</p>
+                        </div>
+
+                        <div class="bg-brand-cream p-8 rounded-3xl border border-brand-sand space-y-4 reveal" style="transition-delay: 0.1s;">
+                            <div class="text-brand-terracotta flex gap-1 text-xs">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="font-serif text-xl italic leading-relaxed">"The Aero Santal car diffuser has elevated my daily commute into a serene ritual. Absolutely stunning design."</p>
+                            <p class="font-sans text-[10px] uppercase tracking-widest font-bold opacity-60">— Julian K., London</p>
+                        </div>
+
+                        <div class="bg-brand-cream p-8 rounded-3xl border border-brand-sand space-y-4 reveal" style="transition-delay: 0.2s;">
+                            <div class="text-brand-terracotta flex gap-1 text-xs">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="font-serif text-xl italic leading-relaxed">"The absence of harsh alcohol makes such a difference. The scent melts into your skin identity."</p>
+                            <p class="font-sans text-[10px] uppercase tracking-widest font-bold opacity-60">— Sophia T., Paris</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: COLLECTION LISTING PAGE (PLP)      -->
+        <!-- ========================================== -->
+        <div id="view-collection" class="view-section py-24 min-h-screen">
+            <div class="max-w-[1400px] mx-auto px-6">
+                
+                <div class="bg-brand-pearl rounded-[40px] p-10 md:p-16 border border-brand-sand shadow-sm mb-12">
+                    <div class="max-w-2xl">
+                        <div class="flex items-center gap-2 text-brand-terracotta font-sans text-[10px] uppercase tracking-[0.25em] font-bold mb-4">
+                            <button onclick="navigate('home')" class="hover:underline interactive">Home</button>
+                            <span>/</span>
+                            <span>The Complete Catalog</span>
+                        </div>
+                        <h1 class="font-serif text-5xl md:text-6xl mb-6">Masterpiece Collection</h1>
+                        <p class="font-sans text-sm opacity-70 font-light leading-relaxed">
+                            Explore our entire range of zero-alcohol solid perfume compacts, precision car air vent diffusers, high-concentration perfume sprays, and bespoke vault gifts.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 pb-6 border-b border-brand-sand">
+                    <div class="flex flex-wrap gap-3" id="plp-category-tabs">
+                        <button onclick="filterCollection('all')" class="plp-tab-btn active bg-brand-ink text-brand-cream px-6 py-3 rounded-full font-sans text-[10px] uppercase tracking-widest font-bold interactive transition-all">
+                            All Formats
+                        </button>
+                        <button onclick="filterCollection('solid')" class="plp-tab-btn bg-brand-pearl border border-brand-sand hover:border-brand-terracotta px-6 py-3 rounded-full font-sans text-[10px] uppercase tracking-widest font-bold interactive transition-all">
+                            Solid Balms
+                        </button>
+                        <button onclick="filterCollection('car')" class="plp-tab-btn bg-brand-pearl border border-brand-sand hover:border-brand-terracotta px-6 py-3 rounded-full font-sans text-[10px] uppercase tracking-widest font-bold interactive transition-all">
+                            Vehicle Diffusers
+                        </button>
+                        <button onclick="filterCollection('spray')" class="plp-tab-btn bg-brand-pearl border border-brand-sand hover:border-brand-terracotta px-6 py-3 rounded-full font-sans text-[10px] uppercase tracking-widest font-bold interactive transition-all">
+                            Extrait Sprays
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-4 w-full md:w-auto justify-end">
+                        <span class="font-sans text-[10px] uppercase tracking-widest font-bold opacity-60 whitespace-nowrap">Sort:</span>
+                        <select id="plp-sort-select" onchange="sortCollection(this.value)" class="bg-brand-pearl border border-brand-sand rounded-full px-5 py-3 font-sans text-xs outline-none focus:border-brand-terracotta interactive">
+                            <option value="featured">Curated Order</option>
+                            <option value="price-low">Price (Ascending)</option>
+                            <option value="price-high">Price (Descending)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10" id="plp-grid">
+                    <!-- Products rendered via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 3: PRODUCT DETAILS PAGE (PDP)         -->
+        <!-- ========================================== -->
+        <div id="view-pdp" class="view-section py-16 md:py-24 min-h-screen">
+            <div class="max-w-[1400px] mx-auto px-6">
+                
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-10 border-b border-brand-sand/50 pb-6">
+                    <div class="flex items-center gap-2 text-brand-terracotta font-sans text-[10px] uppercase tracking-[0.25em] font-bold">
+                        <button onclick="navigate('home')" class="hover:underline interactive">Home</button>
+                        <span>/</span>
+                        <button onclick="navigate('collection')" class="hover:underline interactive">Collections</button>
+                        <span>/</span>
+                        <span id="pdp-breadcrumb" class="text-brand-ink opacity-60">Velvet Oud & Saffron</span>
+                    </div>
+                    <button onclick="navigate('collection')" class="flex items-center gap-2 text-xs font-sans font-bold uppercase tracking-widest hover:text-brand-terracotta transition-colors interactive">
+                        <i class="fa-solid fa-arrow-left text-xs"></i>
+                        <span>Return to Collection</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+                    
+                    <!-- Left: Gallery -->
+                    <div class="lg:col-span-7 space-y-6">
+                        <div class="relative bg-brand-cream rounded-[40px] aspect-[4/5] overflow-hidden border border-brand-sand shadow-xl img-zoom-container">
+                            <img id="pdp-main-img" src="" class="w-full h-full object-cover img-zoom mix-blend-multiply">
+                            <div class="absolute top-8 left-8">
+                                <span id="pdp-badge" class="bg-brand-terracotta text-white font-sans text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-full font-bold shadow-md">
+                                    Solid Balm
+                                </span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-4 gap-4" id="pdp-thumbs">
+                            <!-- Thumbs via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Info -->
+                    <div class="lg:col-span-5 space-y-8">
+                        <div>
+                            <div class="text-brand-terracotta text-xs flex gap-1 mb-3">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                                <span class="text-brand-ink ml-2 font-sans font-bold">5.0 (148 Reviews)</span>
+                            </div>
+                            <h1 id="pdp-title" class="font-serif text-4xl md:text-5xl leading-tight mb-2">Title</h1>
+                            <p id="pdp-subtitle" class="font-sans text-xs uppercase tracking-widest text-brand-terracotta font-bold mb-6">Subtitle</p>
+                            
+                            <p id="pdp-price" class="font-serif text-3xl font-semibold">$88.00</p>
+                        </div>
+
+                        <p id="pdp-desc" class="font-sans text-sm opacity-80 leading-relaxed font-light border-y border-brand-sand/50 py-6">
+                            Description goes here.
+                        </p>
+
+                        <div class="bg-brand-pearl p-6 rounded-3xl border border-brand-sand space-y-4">
+                            <p class="font-sans text-[10px] uppercase tracking-widest font-bold text-brand-terracotta">Olfactory Pyramid</p>
+                            <div class="grid grid-cols-3 gap-2 md:gap-3 text-center text-xs font-sans">
+                                <div class="bg-brand-cream p-3 md:p-4 rounded-2xl">
+                                    <p class="font-bold opacity-60 text-[8px] md:text-[9px] uppercase">Top</p>
+                                    <p id="pdp-top" class="font-serif text-sm md:text-base mt-1">Saffron</p>
+                                </div>
+                                <div class="bg-brand-cream p-3 md:p-4 rounded-2xl">
+                                    <p class="font-bold opacity-60 text-[8px] md:text-[9px] uppercase">Heart</p>
+                                    <p id="pdp-heart" class="font-serif text-sm md:text-base mt-1">Rose</p>
+                                </div>
+                                <div class="bg-brand-cream p-3 md:p-4 rounded-2xl">
+                                    <p class="font-bold opacity-60 text-[8px] md:text-[9px] uppercase">Base</p>
+                                    <p id="pdp-base" class="font-serif text-sm md:text-base mt-1">Oud</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 font-sans text-xs pt-2">
+                            <div class="flex justify-between">
+                                <span class="uppercase tracking-widest font-bold text-[10px] opacity-70">Skin Retention</span>
+                                <span class="font-bold text-brand-terracotta">12 Hours</span>
+                            </div>
+                            <div class="w-full h-2 bg-brand-sand rounded-full overflow-hidden">
+                                <div class="w-11/12 h-full bg-brand-terracotta"></div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4 pt-6">
+                            <div class="flex items-center border-2 border-brand-ink/20 bg-brand-pearl rounded-full px-5 py-4 font-sans text-sm">
+                                <button onclick="pdpAdjustQty(-1)" class="interactive px-2 hover:text-brand-terracotta font-bold">-</button>
+                                <span id="pdp-qty" class="px-4 font-bold">1</span>
+                                <button onclick="pdpAdjustQty(1)" class="interactive px-2 hover:text-brand-terracotta font-bold">+</button>
+                            </div>
+                            <button id="pdp-add-btn" onclick="pdpAddToCart()" class="flex-1 bg-brand-ink text-brand-cream hover:bg-brand-terracotta transition-all py-5 px-8 rounded-full font-sans text-[11px] uppercase tracking-[0.2em] font-bold shadow-xl interactive">
+                                Add To Bag — $88.00
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- PDP HORIZONTAL 3 QUALITIES                 -->
+                <!-- ========================================== -->
+                <div class="py-16 mt-16 mb-16 border-y border-brand-sand grid grid-cols-1 md:grid-cols-3 gap-10">
+                    <div class="flex flex-col items-center text-center space-y-4">
+                        <div class="w-16 h-16 rounded-full bg-brand-cream flex items-center justify-center text-brand-terracotta text-2xl border border-brand-sand shadow-sm">
+                            <i class="fa-solid fa-leaf"></i>
+                        </div>
+                        <h4 class="font-serif text-2xl">100% Botanical</h4>
+                        <p class="font-sans text-xs opacity-70 font-light px-6 leading-relaxed">Formulated with natural waxes and rare extraits without any synthetic fillers or dyes.</p>
+                    </div>
+                    <div class="flex flex-col items-center text-center space-y-4">
+                        <div class="w-16 h-16 rounded-full bg-brand-cream flex items-center justify-center text-brand-terracotta text-2xl border border-brand-sand shadow-sm">
+                            <i class="fa-solid fa-droplet-slash"></i>
+                        </div>
+                        <h4 class="font-serif text-2xl">Zero Alcohol</h4>
+                        <p class="font-sans text-xs opacity-70 font-light px-6 leading-relaxed">No harsh evaporation. Melts directly into pulse points for a continuous, skin-close sillage.</p>
+                    </div>
+                    <div class="flex flex-col items-center text-center space-y-4">
+                        <div class="w-16 h-16 rounded-full bg-brand-cream flex items-center justify-center text-brand-terracotta text-2xl border border-brand-sand shadow-sm">
+                            <i class="fa-solid fa-recycle"></i>
+                        </div>
+                        <h4 class="font-serif text-2xl">Endless Refills</h4>
+                        <p class="font-sans text-xs opacity-70 font-light px-6 leading-relaxed">Designed once, owned forever. Keep the heavy vessel and simply drop in new magnetic pods.</p>
+                    </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- PDP REVIEWS SECTION                        -->
+                <!-- ========================================== -->
+                <div id="pdp-reviews-section" class="bg-brand-pearl rounded-[40px] p-8 md:p-12 border border-brand-sand shadow-lg mb-20">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 pb-8 border-b border-brand-sand">
+                        <div>
+                            <span class="font-sans text-[10px] text-brand-terracotta uppercase tracking-[0.3em] font-bold block mb-2">Verified Feedback</span>
+                            <h3 class="font-serif text-3xl md:text-4xl mb-3">Artisan Reviews</h3>
+                            <div class="flex items-center gap-4">
+                                <div class="text-brand-terracotta flex gap-1">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                                </div>
+                                <span class="font-sans text-sm font-bold opacity-80">5.0 Based on 148 Reviews</span>
+                            </div>
+                        </div>
+                        <button class="bg-brand-ink text-brand-cream hover:bg-brand-terracotta transition-colors px-8 py-4 rounded-full font-sans text-[10px] uppercase tracking-[0.2em] font-bold interactive">
+                            Write a Review
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Review 1 -->
+                        <div class="space-y-4 bg-brand-cream/60 p-8 rounded-3xl border border-brand-sand/50">
+                            <div class="flex justify-between items-start">
+                                <div class="text-brand-terracotta flex gap-1 text-xs">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                                </div>
+                                <span class="font-sans text-[9px] uppercase tracking-widest opacity-50">2 Days Ago</span>
+                            </div>
+                            <p class="font-serif text-xl font-bold text-brand-ink">Absolute Perfection</p>
+                            <p class="font-sans text-sm opacity-70 font-light leading-relaxed">The brass compact is heavy and feels incredible. The scent is rich but doesn't overpower the room. It feels very personal and intimate.</p>
+                            <p class="font-sans text-[10px] uppercase tracking-widest font-bold pt-2">— Sarah M. <i class="fa-solid fa-circle-check text-brand-terracotta ml-1" title="Verified Buyer"></i></p>
+                        </div>
+                        
+                        <!-- Review 2 -->
+                        <div class="space-y-4 bg-brand-cream/60 p-8 rounded-3xl border border-brand-sand/50">
+                            <div class="flex justify-between items-start">
+                                <div class="text-brand-terracotta flex gap-1 text-xs">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                                </div>
+                                <span class="font-sans text-[9px] uppercase tracking-widest opacity-50">1 Week Ago</span>
+                            </div>
+                            <p class="font-serif text-xl font-bold text-brand-ink">My New Signature</p>
+                            <p class="font-sans text-sm opacity-70 font-light leading-relaxed">I was skeptical about solid perfumes, but this changed my mind. The saffron and oud mix perfectly with my body chemistry.</p>
+                            <p class="font-sans text-[10px] uppercase tracking-widest font-bold pt-2">— James L. <i class="fa-solid fa-circle-check text-brand-terracotta ml-1" title="Verified Buyer"></i></p>
+                        </div>
+
+                        <!-- Review 3 -->
+                        <div class="space-y-4 bg-brand-cream/60 p-8 rounded-3xl border border-brand-sand/50">
+                            <div class="flex justify-between items-start">
+                                <div class="text-brand-terracotta flex gap-1 text-xs">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                                </div>
+                                <span class="font-sans text-[9px] uppercase tracking-widest opacity-50">3 Weeks Ago</span>
+                            </div>
+                            <p class="font-serif text-xl font-bold text-brand-ink">Unbelievable Longevity</p>
+                            <p class="font-sans text-sm opacity-70 font-light leading-relaxed">I apply it to my wrists in the morning and can still smell it when I go to bed. The refillable concept is also genius and eco-friendly.</p>
+                            <p class="font-sans text-[10px] uppercase tracking-widest font-bold pt-2">— Elena R. <i class="fa-solid fa-circle-check text-brand-terracotta ml-1" title="Verified Buyer"></i></p>
+                        </div>
+
+                        <!-- Review 4 -->
+                        <div class="space-y-4 bg-brand-cream/60 p-8 rounded-3xl border border-brand-sand/50">
+                            <div class="flex justify-between items-start">
+                                <div class="text-brand-terracotta flex gap-1 text-xs">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                                </div>
+                                <span class="font-sans text-[9px] uppercase tracking-widest opacity-50">1 Month Ago</span>
+                            </div>
+                            <p class="font-serif text-xl font-bold text-brand-ink">Stunning Packaging</p>
+                            <p class="font-sans text-sm opacity-70 font-light leading-relaxed">The magnetic click of the case is so satisfying. The scent itself is mysterious and dark, exactly what I was looking for. 10/10.</p>
+                            <p class="font-sans text-[10px] uppercase tracking-widest font-bold pt-2">— Marcus T. <i class="fa-solid fa-circle-check text-brand-terracotta ml-1" title="Verified Buyer"></i></p>
+                        </div>
+                    </div>
+                    <div class="mt-10 text-center">
+                        <button class="font-sans text-xs uppercase tracking-widest font-bold border-b-2 border-brand-ink pb-1 interactive hover:text-brand-terracotta hover:border-brand-terracotta transition-colors">
+                            Load More Reviews
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- PDP FAQs SECTION                           -->
+                <!-- ========================================== -->
+                <div class="max-w-3xl mx-auto mb-20">
+                    <div class="text-center mb-10">
+                        <span class="font-sans text-[10px] text-brand-terracotta uppercase tracking-[0.3em] font-bold block mb-2">Details & Usage</span>
+                        <h3 class="font-serif text-3xl md:text-4xl">Product Inquiries</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-brand-pearl border border-brand-sand rounded-2xl overflow-hidden transition-all duration-300 shadow-sm">
+                            <button onclick="toggleFaq(this)" class="w-full px-8 py-6 text-left flex justify-between items-center interactive focus:outline-none">
+                                <span class="font-serif text-xl">How to apply the solid balm?</span>
+                                <i class="fa-solid fa-plus text-brand-terracotta transition-transform duration-300"></i>
+                            </button>
+                            <div class="max-h-0 overflow-hidden transition-all duration-500 bg-brand-cream/30">
+                                <p class="px-8 pb-6 font-sans text-sm font-light opacity-80 leading-relaxed">Swirl your fingertip gently over the wax surface to warm the botanicals, then press directly onto pulse points—wrists, neck, and behind the ears. Do not rub wrists together, as this bruises the fragile top notes.</p>
+                            </div>
+                        </div>
+                        <div class="bg-brand-pearl border border-brand-sand rounded-2xl overflow-hidden transition-all duration-300 shadow-sm">
+                            <button onclick="toggleFaq(this)" class="w-full px-8 py-6 text-left flex justify-between items-center interactive focus:outline-none">
+                                <span class="font-serif text-xl">How long does one compact last?</span>
+                                <i class="fa-solid fa-plus text-brand-terracotta transition-transform duration-300"></i>
+                            </button>
+                            <div class="max-h-0 overflow-hidden transition-all duration-500 bg-brand-cream/30">
+                                <p class="px-8 pb-6 font-sans text-sm font-light opacity-80 leading-relaxed">With daily use, the highly concentrated 6g botanical wax pod typically lasts 4 to 6 months. When finished, simply pop out the empty pod from the back and insert a new magnetic refill.</p>
+                            </div>
+                        </div>
+                        <div class="bg-brand-pearl border border-brand-sand rounded-2xl overflow-hidden transition-all duration-300 shadow-sm">
+                            <button onclick="toggleFaq(this)" class="w-full px-8 py-6 text-left flex justify-between items-center interactive focus:outline-none">
+                                <span class="font-serif text-xl">Is this suitable for sensitive skin?</span>
+                                <i class="fa-solid fa-plus text-brand-terracotta transition-transform duration-300"></i>
+                            </button>
+                            <div class="max-h-0 overflow-hidden transition-all duration-500 bg-brand-cream/30">
+                                <p class="px-8 pb-6 font-sans text-sm font-light opacity-80 leading-relaxed">Yes. Because our formula contains absolutely no denatured alcohol, it is inherently gentle and non-drying. The base consists of skin-nourishing organic jojoba oil, candelilla wax, and sheer shea butter.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- PDP SUGGESTED PRODUCTS                     -->
+                <!-- ========================================== -->
+                <div class="mt-20 pt-16 border-t border-brand-sand">
+                    <div class="flex flex-col md:flex-row justify-between items-end mb-12 reveal">
+                        <div>
+                            <span class="font-sans text-[10px] text-brand-terracotta uppercase tracking-[0.3em] font-bold block mb-3">Curated Matches</span>
+                            <h3 class="font-serif text-3xl md:text-4xl">You May Also Experience</h3>
+                        </div>
+                        <button onclick="navigate('collection')" class="font-sans text-xs uppercase tracking-[0.1em] font-bold border-b border-brand-ink pb-1 interactive mt-4 md:mt-0 hover:text-brand-terracotta hover:border-brand-terracotta transition-colors">
+                            Explore Full Catalog
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8" id="pdp-suggested-grid">
+                        <!-- Products rendered dynamically via JS -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobile Menu Drawer -->
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-brand-ink/60 backdrop-blur-sm z-[90] opacity-0 pointer-events-none transition-opacity duration-500" onclick="toggleMobileMenu()"></div>
+    <div id="mobile-menu-drawer" class="fixed top-0 left-0 h-full w-[85vw] md:w-full md:max-w-sm bg-brand-cream shadow-2xl z-[100] transform -translate-x-full transition-transform duration-500 ease-out flex flex-col rounded-r-[40px]">
+        <div class="p-6 border-b border-brand-ink/10 flex justify-between items-center">
+            <img src="diyara.png" alt="Diyara Logo" class="h-6 w-auto object-contain">
+            <button onclick="toggleMobileMenu()" class="w-8 h-8 rounded-full border border-brand-ink/20 flex items-center justify-center hover:bg-brand-terracotta hover:text-white transition-colors interactive">
+                <i class="fa-solid fa-times text-sm"></i>
+            </button>
+        </div>
+        <div class="p-6 flex flex-col gap-6 font-sans text-[11px] uppercase tracking-[0.2em] font-medium">
+            <button onclick="toggleMobileMenu(); navigate('collection')" class="text-left hover:text-brand-terracotta transition-colors interactive">Bestseller</button>
+            <button onclick="toggleMobileMenu(); navigate('collection')" class="text-left hover:text-brand-terracotta transition-colors interactive">New Arrival</button>
+            <button onclick="toggleMobileMenu(); navigate('collection')" class="text-left hover:text-brand-terracotta transition-colors interactive">Collection</button>
+            <button onclick="toggleMobileMenu(); navigate('home')" class="text-left hover:text-brand-terracotta transition-colors interactive">Contact Us</button>
+        </div>
+    </div>
+
+    <div id="cart-overlay" class="fixed inset-0 bg-brand-ink/60 backdrop-blur-sm z-[90] opacity-0 pointer-events-none transition-opacity duration-500" onclick="toggleCart()"></div>
+    
+    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-[85vw] md:w-full md:max-w-sm bg-brand-cream shadow-2xl z-[100] transform translate-x-full transition-transform duration-500 ease-out flex flex-col rounded-l-[40px]">
+        
+        <div class="p-4 border-b border-brand-ink/10 flex justify-between items-center">
+            <h3 class="font-serif text-xl">Your Cart</h3>
+            <button onclick="toggleCart()" class="w-8 h-8 rounded-full border border-brand-ink/20 flex items-center justify-center hover:bg-brand-terracotta hover:text-white hover:border-brand-terracotta transition-colors interactive">
+                <i class="fa-solid fa-times text-sm"></i>
+            </button>
+        </div>
+
+        <div class="p-3 bg-brand-pearl border-b border-brand-ink/5">
+            <div class="flex justify-between font-sans text-[10px] uppercase tracking-widest font-bold mb-1">
+                <span>Free Shipping Unlocked</span>
+                <span class="text-brand-terracotta">100%</span>
+            </div>
+            <div class="w-full h-1 bg-brand-cream rounded-full overflow-hidden">
+                <div class="w-full h-full bg-brand-terracotta"></div>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 space-y-3" id="cart-items">
+            <!-- Items injected by JS -->
+        </div>
+
+        <div class="p-4 bg-brand-pearl rounded-bl-[40px] border-t border-brand-ink/10">
+            <div class="flex justify-between font-sans text-[11px] mb-1 opacity-60">
+                <span>Subtotal</span>
+                <span id="cart-subtotal">$0.00</span>
+            </div>
+            <div class="flex justify-between font-sans text-[11px] mb-2 opacity-60">
+                <span>Shipping</span>
+                <span class="text-brand-terracotta font-bold">Complimentary</span>
+            </div>
+            <div class="flex justify-between font-serif text-lg mb-4">
+                <span>Total</span>
+                <span id="cart-total">$0.00</span>
+            </div>
+            
+            <button class="w-full bg-brand-ink text-brand-cream hover:bg-brand-terracotta transition-colors py-2 rounded-full font-sans text-[10px] uppercase tracking-[0.2em] font-bold interactive shadow-md">
+                Secure Checkout
+            </button>
+        </div>
+    </div>
+
+    <footer class="bg-brand-cream pt-24 pb-12 border-t border-brand-sand mt-auto">
+        <div class="max-w-[1400px] mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
+                
+                <div class="md:col-span-2">
+                    <h3 class="font-serif text-5xl mb-6">Aura by Diyara</h3>
+                    <p class="font-sans text-sm font-light opacity-70 max-w-sm leading-relaxed mb-8">
+                        Elevating personal fragrance into architectural art. No alcohol. No synthetic fillers. Just pure botanical intimacy.
+                    </p>
+                    <form class="flex gap-2" onsubmit="event.preventDefault()">
+                        <input type="email" placeholder="Join the inner circle..." class="bg-brand-pearl border border-brand-sand px-6 py-3 rounded-full outline-none focus:border-brand-terracotta font-sans text-xs w-full max-w-xs">
+                        <button class="bg-brand-terracotta text-white px-6 rounded-full font-sans text-[10px] uppercase tracking-widest interactive hover:bg-brand-ink transition-colors">
+                            Subscribe
+                        </button>
+                    </form>
+                </div>
+
+                <div>
+                    <h4 class="font-sans text-[10px] uppercase tracking-widest font-bold text-brand-terracotta mb-6">The Maison</h4>
+                    <ul class="space-y-4 font-sans text-xs font-medium">
+                        <li><button onclick="filterCollection('solid'); navigate('collection');" class="hover:text-brand-terracotta transition-colors interactive">Solid Perfume Balms</button></li>
+                        <li><button onclick="filterCollection('car'); navigate('collection');" class="hover:text-brand-terracotta transition-colors interactive">Vehicle Diffusers</button></li>
+                        <li><button onclick="filterCollection('spray'); navigate('collection');" class="hover:text-brand-terracotta transition-colors interactive">Extrait Sprays</button></li>
+                        <li><button onclick="navigate('home', 'gifting')" class="hover:text-brand-terracotta transition-colors interactive">Discovery Vault</button></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-sans text-[10px] uppercase tracking-widest font-bold text-brand-terracotta mb-6">Concierge</h4>
+                    <ul class="space-y-4 font-sans text-xs font-medium">
+                        <li><a href="#" class="hover:text-brand-terracotta transition-colors interactive">Shipping & Returns</a></li>
+                        <li><a href="#" class="hover:text-brand-terracotta transition-colors interactive">Refill Mechanics</a></li>
+                        <li><a href="#" class="hover:text-brand-terracotta transition-colors interactive">Contact Artisan</a></li>
+                        <li><a href="#" class="hover:text-brand-terracotta transition-colors interactive">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-brand-ink/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="font-sans text-[10px] uppercase tracking-widest opacity-50">&copy; 2026 Diyara Haute Parfumerie.</p>
+                <div class="flex gap-6 text-lg opacity-60">
+                    <a href="#" class="hover:text-brand-terracotta interactive"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" class="hover:text-brand-terracotta interactive"><i class="fa-brands fa-pinterest"></i></a>
+                    <a href="#" class="hover:text-brand-terracotta interactive"><i class="fa-brands fa-tiktok"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Database of products
+        const productsDB = [
+            {
+                id: 'prod1', title: 'Velvet Oud & Saffron', category: 'solid', subtitle: 'Refillable Brass Compact', price: 88.00,
+                badge: 'Solid Balm', top: 'Saffron', heart: 'Damask Rose', base: 'Aged Oud',
+                desc: 'A rich, architectural formulation blending sun-dried saffron threads with soft oud wood and velvet rose petals. Formulated with botanical waxes to melt seamlessly into your pulse points.',
+                img: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?q=80&w=800&auto=format&fit=crop',
+                thumbs: [
+                    'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?q=80&w=800&auto=format&fit=crop',
+                    'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=800&auto=format&fit=crop',
+                    'https://images.unsplash.com/photo-1547887537-6158d64c35b3?q=80&w=800&auto=format&fit=crop',
+                    'https://images.unsplash.com/photo-1615397323136-1e967a57fba3?q=80&w=800&auto=format&fit=crop'
+                ]
+            },
+            {
+                id: 'prod2', title: 'Aero Santal & Leather', category: 'car', subtitle: 'Milled Aluminum Vent Pod', price: 64.00,
+                badge: 'Car Diffuser', top: 'Smoked Cedar', heart: 'Sandalwood', base: 'Tuscan Leather',
+                desc: 'Transform every journey into a sanctuary. Crafted from milled anodized aluminum, the Aero car diffuser uses vehicle climate airflow to disperse dry fragrance without oily residue.',
+                img: 'https://images.unsplash.com/photo-1615397349754-cfa2066a298e?q=80&w=800&auto=format&fit=crop',
+                thumbs: [
+                    'https://images.unsplash.com/photo-1615397349754-cfa2066a298e?q=80&w=800&auto=format&fit=crop',
+                    'https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=800&auto=format&fit=crop'
+                ]
+            },
+            {
+                id: 'prod3', title: 'Imperial Extrait Spray', category: 'spray', subtitle: 'Unisex Liquid Perfume', price: 135.00,
+                badge: '30% Extrait', top: 'Bergamot', heart: 'Pink Pepper', base: 'Amber',
+                desc: 'A vibrant, luminous concentration highlighting fresh Italian citrus layered with crushed warm pepper and a deep golden amber resin finish.',
+                img: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?q=80&w=800&auto=format&fit=crop',
+                thumbs: [
+                    'https://images.unsplash.com/photo-1523293182086-7651a899d37f?q=80&w=800&auto=format&fit=crop',
+                    'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?q=80&w=800&auto=format&fit=crop'
+                ]
+            },
+            {
+                id: 'prod4', title: 'Tahitian Amber Balm', category: 'solid', subtitle: 'Refillable Brass Compact', price: 82.00,
+                badge: 'Solid Balm', top: 'Madagascar Vanilla', heart: 'Solar Amber', base: 'White Musk',
+                desc: 'A cozy, intimate gourmand scent with rich cured vanilla pods and warm solar amber waxes. Lacks any synthetic sweetness.',
+                img: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=800&auto=format&fit=crop',
+                thumbs: [
+                    'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=800&auto=format&fit=crop'
+                ]
+            },
+            {
+                id: 'prod7', title: 'Bespoke Discovery Vault', category: 'gift', subtitle: 'Curated 3-Piece Gift Set', price: 110.00,
+                badge: 'Gift Box', top: 'Assorted', heart: 'Assorted', base: 'Custom',
+                desc: 'Select any 3 items packaged in our signature luxury linen gift box complete with a personalized messaging card and wax seal.',
+                img: 'https://images.unsplash.com/photo-1615397323136-1e967a57fba3?q=80&w=800&auto=format&fit=crop',
+                thumbs: [
+                    'https://images.unsplash.com/photo-1615397323136-1e967a57fba3?q=80&w=800&auto=format&fit=crop'
+                ]
+            }
+        ];
+
+        // Global Variables
+        let currentCart = [];
+        let pdpCurrentId = 'prod1';
+        let pdpCurrentQty = 1;
+
+        // Scroll Reveal Observer
+        let revealObserver;
+        function initRevealObserver() {
+            if(revealObserver) revealObserver.disconnect();
+            
+            const revealElements = document.querySelectorAll('.reveal, .reveal-left');
+            revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) entry.target.classList.add('active');
+                });
+            }, { threshold: 0.15, rootMargin: "0px 0px -50px 0px" });
+            
+            revealElements.forEach(el => {
+                el.classList.remove('active'); // Reset on re-init
+                revealObserver.observe(el);
+            });
+        }
+
+        // SPA Navigation
+        function navigate(viewId, hash = null) {
+            // Hide all views
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active-view'));
+            // Show target view
+            document.getElementById('view-' + viewId).classList.add('active-view');
+            
+            if (viewId === 'collection') {
+                renderCollectionGrid(productsDB);
+            }
+
+
+            initRevealObserver();
+
+            // Handle Scrolling
+            if (hash) {
+                setTimeout(() => {
+                    const el = document.getElementById(hash);
+                    if(el) el.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+            } else {
+                window.scrollTo({ top: 0, behavior: 'auto' });
+            }
+        }
+
+        // Collection Page Logic
+        function renderCollectionGrid(items) {
+            const grid = document.getElementById('plp-grid');
+            grid.innerHTML = '';
+            
+            items.forEach(prod => {
+                grid.innerHTML += `
+                    <div class="group interactive bg-brand-pearl rounded-[36px] p-5 border border-brand-sand shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between" onclick="openPDP('${prod.id}')">
+                        <div>
+                            <div class="relative bg-brand-cream rounded-2xl aspect-[4/5] overflow-hidden mb-5 img-zoom-container cursor-pointer">
+                                <img src="${prod.img}" class="w-full h-full object-cover img-zoom mix-blend-multiply">
+                                <div class="absolute top-4 left-4">
+                                    <span class="bg-brand-terracotta text-white font-sans text-[8px] uppercase tracking-widest px-3 py-1 rounded-full font-bold shadow-sm">
+                                        ${prod.badge}
+                                    </span>
+                                </div>
+                            </div>
+                            <h3 class="font-serif text-2xl group-hover:text-brand-terracotta transition-colors cursor-pointer">${prod.title}</h3>
+                            <p class="font-sans text-xs opacity-60 mt-1">${prod.subtitle}</p>
+                        </div>
+                        <div class="mt-6 pt-4 border-t border-brand-sand/50 flex justify-between items-center">
+                            <span class="font-serif text-xl font-bold">$${prod.price.toFixed(2)}</span>
+                            <button onclick="event.stopPropagation(); addToCart('${prod.id}')" class="bg-brand-ink text-brand-cream hover:bg-brand-terracotta transition-colors px-5 py-2.5 rounded-full font-sans text-[9px] uppercase tracking-widest font-bold">
+                                Quick Add
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+        }
+
+        function filterCollection(category) {
+            document.querySelectorAll('.plp-tab-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-ink', 'text-brand-cream');
+                btn.classList.add('bg-brand-pearl');
+            });
+            event.currentTarget.classList.add('bg-brand-ink', 'text-brand-cream');
+            event.currentTarget.classList.remove('bg-brand-pearl');
+
+            let filtered = category === 'all' ? productsDB : productsDB.filter(p => p.category === category);
+            renderCollectionGrid(filtered);
+        }
+
+        function sortCollection(type) {
+            let sorted = [...productsDB];
+            if(type === 'price-low') sorted.sort((a,b) => a.price - b.price);
+            if(type === 'price-high') sorted.sort((a,b) => b.price - a.price);
+            renderCollectionGrid(sorted);
+        }
+
+        // Product Details Page Logic
+        function openPDP(id) {
+            const prod = productsDB.find(p => p.id === id) || productsDB[0];
+            pdpCurrentId = id;
+            pdpCurrentQty = 1;
+
+            document.getElementById('pdp-breadcrumb').innerText = prod.title;
+            document.getElementById('pdp-main-img').src = prod.img;
+            document.getElementById('pdp-badge').innerText = prod.badge;
+            document.getElementById('pdp-title').innerText = prod.title;
+            document.getElementById('pdp-subtitle').innerText = prod.subtitle;
+            document.getElementById('pdp-price').innerText = '$' + prod.price.toFixed(2);
+            document.getElementById('pdp-desc').innerText = prod.desc;
+            document.getElementById('pdp-top').innerText = prod.top;
+            document.getElementById('pdp-heart').innerText = prod.heart;
+            document.getElementById('pdp-base').innerText = prod.base;
+            
+            pdpUpdateBtn();
+
+            // Render thumbs
+            const thumbsContainer = document.getElementById('pdp-thumbs');
+            thumbsContainer.innerHTML = '';
+            prod.thumbs.forEach((thumb, idx) => {
+                thumbsContainer.innerHTML += `
+                    <button onclick="document.getElementById('pdp-main-img').src='${thumb}'" class="rounded-2xl overflow-hidden aspect-square border-2 border-brand-sand hover:border-brand-terracotta interactive">
+                        <img src="${thumb}" class="w-full h-full object-cover mix-blend-multiply">
+                    </button>
+                `;
+            });
+
+            // Render Suggested Products
+            const suggestedContainer = document.getElementById('pdp-suggested-grid');
+            if (suggestedContainer) {
+                suggestedContainer.innerHTML = '';
+                // Filter out current product and slice to grab up to 4 other items
+                const suggested = productsDB.filter(p => p.id !== id).slice(0, 4);
+                suggested.forEach(sProd => {
+                    suggestedContainer.innerHTML += `
+                        <div class="group interactive bg-brand-pearl rounded-[36px] p-5 border border-brand-sand shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between" onclick="openPDP('${sProd.id}')">
+                            <div>
+                                <div class="relative bg-brand-cream rounded-2xl aspect-[4/5] overflow-hidden mb-5 img-zoom-container cursor-pointer">
+                                    <img src="${sProd.img}" class="w-full h-full object-cover img-zoom mix-blend-multiply">
+                                    <div class="absolute top-4 left-4">
+                                        <span class="bg-brand-terracotta text-white font-sans text-[8px] uppercase tracking-widest px-3 py-1 rounded-full font-bold shadow-sm">
+                                            ${sProd.badge}
+                                        </span>
+                                    </div>
+                                </div>
+                                <h3 class="font-serif text-xl group-hover:text-brand-terracotta transition-colors cursor-pointer">${sProd.title}</h3>
+                                <p class="font-sans text-[10px] opacity-60 mt-1">${sProd.subtitle}</p>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-brand-sand/50 flex justify-between items-center">
+                                <span class="font-serif text-lg font-bold">$${sProd.price.toFixed(2)}</span>
+                                <button onclick="event.stopPropagation(); addToCart('${sProd.id}')" class="bg-brand-ink text-brand-cream hover:bg-brand-terracotta transition-colors px-4 py-2 rounded-full font-sans text-[8px] uppercase tracking-widest font-bold">
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            navigate('pdp');
+        }
+
+        function pdpAdjustQty(delta) {
+            pdpCurrentQty = Math.max(1, pdpCurrentQty + delta);
+            document.getElementById('pdp-qty').innerText = pdpCurrentQty;
+            pdpUpdateBtn();
+        }
+
+        function pdpUpdateBtn() {
+            const prod = productsDB.find(p => p.id === pdpCurrentId);
+            const total = (prod.price * pdpCurrentQty).toFixed(2);
+            document.getElementById('pdp-add-btn').innerText = `Add To Bag — $${total}`;
+        }
+
+        function pdpAddToCart() {
+            for(let i = 0; i < pdpCurrentQty; i++) {
+                addToCart(pdpCurrentId);
+            }
+            toggleCart();
+        }
+
+        // Quiz Logic
+        function selectQuizOption(type, val, btn) {
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.quiz-btn').forEach(b => {
+                b.classList.remove('border-brand-terracotta', 'bg-brand-terracotta/10');
+            });
+            btn.classList.add('border-brand-terracotta', 'bg-brand-terracotta/10');
+
+            if (type === 'mood' || type === 'note') {
+                const quizData = {
+                    'oud': productsDB[0],
+                    'santal': productsDB[1],
+                    'citrus': productsDB[2],
+                    'vanilla': productsDB[3]
+                };
+
+                const res = quizData[val] || productsDB[0];
+                document.getElementById('quiz-title').innerText = res.title;
+                document.getElementById('quiz-desc').innerText = res.desc.substring(0, 80) + '...';
+                document.getElementById('quiz-img').src = res.img;
+                document.getElementById('quiz-action-btn').onclick = () => openPDP(res.id);
+            }
+        }
+
+        // Cart Logic
+        let isCartOpen = false;
+        function toggleCart() {
+            const drawer = document.getElementById('cart-drawer');
+            const overlay = document.getElementById('cart-overlay');
+            isCartOpen = !isCartOpen;
+            
+            if (isCartOpen) {
+                if (typeof renderCart === 'function') renderCart();
+                drawer.classList.remove('translate-x-full');
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+                document.body.style.overflow = 'hidden';
+            } else {
+                drawer.classList.add('translate-x-full');
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+                document.body.style.overflow = '';
+            }
+        }
+
+        let isMobileMenuOpen = false;
+        function toggleMobileMenu() {
+            const overlay = document.getElementById('mobile-menu-overlay');
+            const drawer = document.getElementById('mobile-menu-drawer');
+            isMobileMenuOpen = !isMobileMenuOpen;
+            
+            if (isMobileMenuOpen) {
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+                drawer.classList.remove('-translate-x-full');
+                document.body.style.overflow = 'hidden';
+            } else {
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+                drawer.classList.add('-translate-x-full');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function addToCart(id) {
+            const existing = currentCart.find(item => item.id === id);
+            if(existing) existing.qty++;
+            else currentCart.push({id: id, qty: 1});
+            
+            const count = currentCart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById('cart-count').innerText = count;
+        }
+
+        function updateCartQty(id, delta) {
+            const idx = currentCart.findIndex(item => item.id === id);
+            if(idx > -1) {
+                currentCart[idx].qty += delta;
+                if(currentCart[idx].qty <= 0) currentCart.splice(idx, 1);
+            }
+            const count = currentCart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById('cart-count').innerText = count;
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items');
+            container.innerHTML = '';
+            let subtotal = 0;
+
+            if(currentCart.length === 0) {
+                container.innerHTML = '<p class="font-serif text-xl opacity-60 text-center py-10">Your bag is empty.</p>';
+            }
+
+            currentCart.forEach(item => {
+                const prod = productsDB.find(p => p.id === item.id);
+                if(!prod) return;
+                const total = prod.price * item.qty;
+                subtotal += total;
+
+                container.innerHTML += `
+                    <div class="flex gap-3 items-center bg-brand-pearl p-3 rounded-2xl border border-brand-sand">
+                        <img src="${prod.img}" class="w-14 h-16 object-cover rounded-xl border border-brand-sand mix-blend-multiply">
+                        <div class="flex-1">
+                            <h4 class="font-serif text-lg leading-tight">${prod.title}</h4>
+                            <p class="font-sans text-[9px] uppercase tracking-widest text-brand-terracotta mt-0.5">${prod.badge}</p>
+                            <div class="flex justify-between items-center mt-2">
+                                <div class="flex items-center gap-3 border border-brand-ink/20 rounded-full px-2 py-0.5 font-sans text-xs">
+                                    <button onclick="updateCartQty('${prod.id}', -1)" class="interactive hover:text-brand-terracotta font-bold">-</button>
+                                    <span class="font-bold">${item.qty}</span>
+                                    <button onclick="updateCartQty('${prod.id}', 1)" class="interactive hover:text-brand-terracotta font-bold">+</button>
+                                </div>
+                                <p class="font-sans font-bold text-sm">$${total.toFixed(2)}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('cart-subtotal').innerText = '$' + subtotal.toFixed(2);
+            document.getElementById('cart-total').innerText = '$' + subtotal.toFixed(2);
+
+        }
+
+        // FAQ Toggle Logic
+        function toggleFaq(btn) {
+            const content = btn.nextElementSibling;
+            const icon = btn.querySelector('i');
+            
+            // Optional: Close other open FAQs in the same container
+            const parentContainer = btn.closest('.space-y-4');
+            parentContainer.querySelectorAll('.max-h-0').forEach(el => {
+                if(el !== content && el.style.maxHeight && el.style.maxHeight !== '0px') {
+                    el.style.maxHeight = '0px';
+                    el.previousElementSibling.querySelector('i').classList.remove('rotate-45');
+                }
+            });
+
+            if(content.style.maxHeight && content.style.maxHeight !== '0px') {
+                content.style.maxHeight = '0px';
+                icon.classList.remove('rotate-45');
+            } else {
+                content.style.maxHeight = content.scrollHeight + 'px';
+                icon.classList.add('rotate-45');
+            }
+        }
+
+        // Initialization
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('bg-brand-cream/90', 'backdrop-blur-md', 'border-b', 'border-brand-sand', 'py-4');
+                navbar.classList.remove('py-6');
+            } else {
+                navbar.classList.remove('bg-brand-cream/90', 'backdrop-blur-md', 'border-b', 'border-brand-sand', 'py-4');
+                navbar.classList.add('py-6');
+            }
+        });
+
+        window.onload = () => {
+
+            initRevealObserver();
+            // Default load dummy cart
+            addToCart('prod1');
+            addToCart('prod2');
+        };
+    </script>
+</body>
+</html>
